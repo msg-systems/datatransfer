@@ -27,14 +27,16 @@ Main features are
 ### Quick Start
 - Decide which version to use (.Net 4.8 or 7.0) -> install respective runtime if not installed already
 - Download binaries
-- Write your first job (see documentations, examples, xsd-file) - be sure to have a csv file on sourceTable-location with a header line and some data filled for every column
+- Write your first job (see documentations, examples, xsd-file) - be sure to have a csv file on sourceTable-location with a header line and at least the columns col1, col2 and some data filled for every column
 ```
    <?xml version="1.0"?>
    <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation ="job.xsd">
     <transferBlock name="CSV_CSV-Transfer_Protocol"
       conStringSourceType="Custom.CSV" conStringSource="delimiter=,"
       conStringTargetType="Custom.CSV" conStringTarget="delimiter=;" disableTransaction="true">
-        <TransferTableJob sourceTable="C:\temp\myCSVSource.csv" targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true"/>
+        <TransferTableJob targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true">
+           <customSourceSelect> SELECT col1, col2 from C:\temp\myCSVSource.csv </customSourceSelect>
+        </TransferTableJob>
     </transferBlock>
   </TransferJob>
 ```
