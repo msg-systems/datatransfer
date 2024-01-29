@@ -44,8 +44,6 @@ Depending of your usage: the third party ADO.Net drivers used.
 For .Net 4.8: If you don´t use some shipped ADO.Net drivers you can just remove them.
 
 ### Structure of this repository
-- binaries\.net7 : Binaries for the datatransfer .NET version 7.0
-- binaries\.net48 : Binaries for the datatransfer .NET version 4.8
 - packages\CryptPassword : A tool to create base64 encrypted strings with System.Security.Cryptography.ProtectedData, which can be used in the job description files
 - Documentation\Content : German documentation documents for workflow of processing, UML, DSL documentation and description of structure of the job files
 - Documentation\Help : Windows help file and web help for code elements of this project
