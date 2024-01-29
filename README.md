@@ -28,7 +28,7 @@ Main features are
 - Decide which version to use (.Net 4.8 or 7.0) -> install respective runtime if not installed already
 - Download binaries
 - Write your first job (see documentations, examples, xsd-file)
-  - ```
+```
    <?xml version="1.0"?>
    <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:noNamespaceSchemaLocation ="job.xsd">
     <transferBlock name="CSV_CSV-Transfer_Protocol"
@@ -37,7 +37,7 @@ Main features are
         <TransferTableJob sourceTable="C:\temp\myCSVSource.csv" targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true">
     </transferBlock>
   </TransferJob>
-  ```
+```
 - Start/Test the tool: datatransfer.exe -f <fullpath to your job.xml>
 - to get more debug infos: datatransfer.exe -f <fullpath to your job.xml> -d
 - to get full list of parameters: datatransfer.exe -? or datatransfer.exe -h
