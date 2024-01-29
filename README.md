@@ -30,10 +30,10 @@ Main features are
 - Write your first job (see documentations, examples, xsd-file)
 ```
    <?xml version="1.0"?>
-   <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:noNamespaceSchemaLocation ="job.xsd">
+   <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation ="job.xsd">
     <transferBlock name="CSV_CSV-Transfer_Protocol"
-							 conStringSourceType="Custom.CSV" conStringSource="delimiter=,"
-							 conStringTargetType="Custom.CSV" conStringTarget="delimiter=;" disableTransaction="true">
+      conStringSourceType="Custom.CSV" conStringSource="delimiter=,"
+      conStringTargetType="Custom.CSV" conStringTarget="delimiter=;" disableTransaction="true">
         <TransferTableJob sourceTable="C:\temp\myCSVSource.csv" targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true">
     </transferBlock>
   </TransferJob>
