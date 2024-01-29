@@ -41,7 +41,7 @@ Main features are
 - Start/Test the tool: datatransfer.exe -f [fullpath to your job.xml]
 - to get more debug infos: datatransfer.exe -f [fullpath to your job.xml] -d
 - to get full list of parameters: datatransfer.exe -? or datatransfer.exe -h
-- Customizing the code is done with Visual Studio Community or higher Visual Studio versions 
+- Customizing the source code is done with Visual Studio Community or higher Visual Studio versions 
 
 ### Dependencies
 Datatransfer .Net4 depends on 
