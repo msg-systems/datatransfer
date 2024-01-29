@@ -60,7 +60,7 @@ You can customize the code to fulfill your needs.
 - to add an ADO.Net driver just add the driver to the project
   - .Net 4.8 compile it
   - .Net 7 - add a line in program.cs Main method like : DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance);
-- to implement custom logic for a ADO.Net provider
+- to implement custom logic for a ADO.Net provider (example MSSQLInterface.cs)
   - Create a class under Database which is inheriting from DBInterface and define the properties supportsDataAdapterCommands, supportsParameter and supportsBatchCommands (in doubt just try)
   - reference this class in DBInterface.cs method getInterface by adding a new case like
   - other features which can be added in your class
@@ -69,14 +69,23 @@ You can customize the code to fulfill your needs.
     - implement own methods for merge
     - implement getParamName for custom parameter name format for your data source
     - just look into the existing implementations
-- to implement custom logic for non-ADO.Net provider
+- to implement custom logic for non-ADO.Net provider (example XMLInterface.cs)
   - Create a class under Database\Custom which is inheriting from CustomInterfaceBase and define the properties/events for
     - define drivername, transactionality, batchsize ... (see current implementations)
     - define handler for reading: fillFromSQLParseTree
-    - define handler for writing: initFillContext, commitFillContext, rollbackFillContext, insertHandler and if needed updateHandler and deleteHandler
+    - define handler for writing (if needed): initFillContext, commitFillContext, rollbackFillContext, insertHandler and if needed updateHandler and deleteHandler
     - define if SQL syntax is used and complex from expressions (like http)
     - overwrite base methods if needed like deleteTableRows 
   - reference this class in DBInterface.cs method getInterface by adding a new case like
-- to implement custom source for nonSQL with Parameters
+- to implement your own DSL for your own provider (example LDAPInterface.cs class ldapDSL)
+  - create a valueProvider inherited from DSLValueProvider which implements how to resolve identifier to values
+  - create a functionHandler inherited from DSLFunctionHanlder which implements how to execute functions
+  - create a dsl-class inherited from DSLDef which uses the provider and handler
+  - In your provider overwrite readSelect and use your own dsl 
+- to implement custom source location for nonSQL with/without Parameters
   - look into the class Model\RemoteRequest method resolveRequest -> there you can add custom protocols and logic for authenticating
-    
+
+### Note
+This tool was created around 2011 and extended as needed on practical use cases. 
+Because of the generic approach there are many possibilites, which can be configured, but never were checked. 
+So please be gracious about use cases which don´t work on first attempt. The good is, they can often be fixed with only a few lines of code.
