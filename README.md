@@ -69,7 +69,7 @@ For .Net 4.8: If you don´t use some shipped ADO.Net drivers you can just remove
 You can customize the code to fulfill your needs. 
 - to add an ADO.Net driver just add the driver to the project
   - .Net 4.8 compile it
-  - .Net 7 - add a line in program.cs Main method like : DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance);
+  - .Net 7 - add a line in program.cs Main method like : DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance); and compile it
 - to implement custom logic for a ADO.Net provider (example MSSQLInterface.cs)
   - Create a class under Database which is inheriting from DBInterface and define the properties supportsDataAdapterCommands, supportsParameter and supportsBatchCommands (in doubt just try)
   - reference this class in DBInterface.cs method getInterface by adding a new case like
