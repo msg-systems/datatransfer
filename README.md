@@ -76,6 +76,6 @@ You can customize the code to fulfill your needs.
     - define if SQL syntax is used and complex from expressions (like http)
     - overwrite base methods if needed like deleteTableRows 
   - reference this class in DBInterface.cs method getInterface by adding a new case like
-- to implement custom source-Parameters
+- to implement custom source for nonSQL with Parameters
   - look into the class Model\RemoteRequest method resolveRequest -> there you can add custom protocols and logic for authenticating
     
