@@ -1,5 +1,5 @@
 # DataTransfer
-A console command tool for extracting, transforming and loading data in diffrent database systems and data format types.
+A console command tool for extracting, transforming and loading/synching/merging data in diffrent database systems and data format types.
 
 ### Description
 The datatransfer is an ETL console command tool. Its using job config files to define its jobs. 
