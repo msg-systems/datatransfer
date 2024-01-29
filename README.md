@@ -21,7 +21,7 @@ Main features are
 - Usable in command line and therefore easy to integrate into other workflow engines
 - Job descriptions in xml with existing xsd schema
 - Password encryption in job descriptions user/server based
-- Because of open source extensible to your needs
+- Because of open source, extensible to your needs
 - Very few dependencies to other libraries
 
 ### Quick Start
