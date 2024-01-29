@@ -34,7 +34,7 @@ Main features are
     <transferBlock name="CSV_CSV-Transfer_Protocol"
       conStringSourceType="Custom.CSV" conStringSource="delimiter=,"
       conStringTargetType="Custom.CSV" conStringTarget="delimiter=;" disableTransaction="true">
-        <TransferTableJob sourceTable="C:\temp\myCSVSource.csv" targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true">
+        <TransferTableJob sourceTable="C:\temp\myCSVSource.csv" targetTable="C:\temp\myCSVTarget.csv" identicalColumns="true"/>
     </transferBlock>
   </TransferJob>
 ```
