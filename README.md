@@ -1,4 +1,4 @@
-# Datatransfer
+# DataTransfer
 A console command tool for extracting, transforming and loading data in diffrent database systems and data format types.
 
 ### Description
