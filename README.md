@@ -94,8 +94,8 @@ You can customize the code to fulfill your needs.
 - to implement your own DSL for your own provider (example LDAPInterface.cs class ldapDSL)
   - create a valueProvider inherited from DSLValueProvider which implements how to resolve identifier to values
   - create a functionHandler inherited from DSLFunctionHanlder which implements how to execute functions
-  - create a dsl-class inherited from DSLDef which uses the provider and handler
-  - In your provider overwrite readSelect and use your own dsl 
+  - create a dsl-class inherited from DSLDef which uses the dsl provider and dsl function handler
+  - In your data provider overwrite readSelect and use your own dsl 
 - to implement custom source location for nonSQL with/without Parameters
   - look into the class Model\RemoteRequest method resolveRequest -> there you can add custom protocols and logic for authenticating
 
