@@ -1,0 +1,44 @@
+Access = System.Data.OleDb  ## Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\PIM-Export-Bearbeitergruppen.mdb;Persist Security Info=True
+Excel = System.Data.OleDb ## Provider=Microsoft.ACE.OLEDB.12.0;Data Source=TestData\SSIS_Export.xlsx;Extended Properties=&quot;Excel 12.0 Xml;HDR=YES&quot;;
+ODBC = System.Data.Odbc ## Treibername in ODBC-Einstellungen Windows nachschlagen und in {} schreiben
+DB2 = IBM.Data.DB2 ## Server=dbservername:50000;Database=dbname;UserID=db2admin;pwd=geheim
+MSSQL = System.Data.SqlClient
+Oracle = System.Data.OracleClient
+Notes = System.Data.Odbc ## string sConnString = "Driver={Lotus Notes SQL Driver (*.nsf)};Server=dominoserver/msg;database=applic/msg0001.nsf;Uid=xxx;Pwd=xxx";
+				Nutzer und Passwort sind eine mapped UserID die im Notes ODBC-Treiber angelegt werden (Wizards etc via ODBC-Datenquelle konfigurieren) 
+				Auf 32/64 bit achten!
+				Bei Notes-View Anfrage zählt der programmatische Spaltenname (Extra Tab für die Spalte)
+				
+				!!! Auf Domino Server !!!
+				Man muss Lotus Notes (notes.ini-Pfad) und NotesSQL-Pfad in die PATH Variable aufnehmen
+				Man muss für den Server in der names.nsf ein Location-Dokument anlegen (View Location), sonst funktioniert nur der lokale Server!
+				Man muss den Prozess immer mit höchsten Privilegien starten, da sonst der ODBC-Treiber sich aufhängt und der DataTransfer sich nie beendet
+				
+Oracle = System.Data.OleDb ## Provider=OraOLEDB.Oracle;Data Source=(DESCRIPTION=(CID=[ClientId])(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=[host])(PORT=[Port])))(CONNECT_DATA=(SID=[DB-Name/SID])(SERVER=DEDICATED)));User Id=[ID];Password=[Password]
+				Benötigt ODAC 32/64 bit von Oracle jeweils nach verwendeter Architektur
+
+Doku zu speziellen Parametern in Customtypen finden sich in der Doku der Klasse RemoteRequest
+CSV = TargetType Custom.Export.CSV oder Custom.CSV - Im ConString kann (aber muss nicht) delimiter (Trennzeichen zwischen Token) und enclose (Klammerungszeichen für Token) angegeben sein. 
+			TargetTable entspricht dem Pfad+Dateinamen auf dem Laufwerk in dem die CSV abgelegt werden soll
+JSON = TargetType Custom.JSON ConString nicht nötig. TargetTable entspricht dem Pfad+Dateinamen auf dem Laufwerk in dem die JSON abgelegt werden soll - Kann nur Arrays lesen . Pfad angabe mit Parameter jsonpath 
+  z.B. jsonPath=$[2].subarray:::file://D:\DevSpace\VisualStudio\SQL_DWH\DataTransfer\TestData\json1.json
+XML = TargetType Custom.XML ConString nicht nötig. TargetTable entspricht dem Pfad+Dateinamen auf dem Laufwerk in dem die XML abgelegt werden soll - Pfadangaben mit xpath
+  z.B. xpath=element/element2:::file://D:\DevSpace\VisualStudio\SQL_DWH\DataTransfer\TestData\xml1.xml
+LDAP = System.Data.OleDb ## Provider=ADsDSOObject;  
+		Entweder
+		<LDAP://ldapserver:389/dc=myDC>;(&(objectCategory=user)(objectClass=user)(userPrincipalName=*));name,userPrincipalName,mail,company,distinguishedName,memberOf;subtree
+		Oder
+		SELECT cn FROM 'LDAP://ldapserver:389/dc=myDC' where objectCategory='user' and company = 'msg services ag'
+		Ergebnisse > 5000 Zeilen verursachen Fehler (Einstellung am AD) - LDAP2 hat diese Probleme nicht
+LDAPS genauso anfragen mit LDAP:// aber mit Port 636
+LDAP2 = LDAPBatchCustom ## ;
+    Syntax wie zuvor, aber hinter where geht nur ein Suchkriterium in LDAP-Syntax
+    also (&(a)(b)(c)) für UND-Verknüpfungen (|(a)(b)(c)) für ODER-Verknüpfungen und oder Kombinationen ! für nicht
+    Operatoren = < > usw. WildCards * sind erlaubt
+    Für Bitmasken kommen spezielle Konstanten zum Einsatz
+    BitMaske Und = Attribut:1.2.840.113556.1.4.803:=Vergleichswert z.B. userAccountControl:1.2.840.113556.1.4.803:=2 userAccountControl mit Bit 2 gesetzt (2 = 000000010)
+    BitMaske Oder = 1.2.840.113556.1.4.804
+    Im Select-Teil sind Formeln für Attribute möglich etwa givenname + ' ' + sn oder int(attribut) - Syntax C#-Operatoren, 
+    Funktionen caseInsensitiv 
+    Konvertierungen: cInt/cOctet/cDate8/cDateGen 
+    Aufsplitten von Zeilen/Denormalisieren: splitRows, loadBigArray

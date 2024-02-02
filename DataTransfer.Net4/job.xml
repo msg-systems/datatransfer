@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						 xsi:noNamespaceSchemaLocation ="job.xsd">
+
+		<settings writeLogToFile="Log\transferLog_[ddMMyyyy HH_mm_ss].log">
+			<mailSettings sendMailOnErrorLevel="Error" smtpServer="myMailServer"
+										sendFrom="sender@test.de" subject="Error in Tranfer Test">
+				<sendTo>recipient@test.de</sendTo>
+				<message>
+					<![CDATA[
+						Fehlschlag
+						<message>
+					]]>
+				</message>
+			</mailSettings>
+		</settings>
+
+	<transferBlock name="CSV-Transfer"
+								 conStringSourceType="IBM.Data.DB2" conStringSource="Server=dbservername:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+								 conStringTargetType="Custom.Export.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob sourceTable="ZAP.PIM_Hardware" sourceWhere = "art='fw'"
+							targetTable="C:\temp\hardware.csv" identicalColumns="true" sync="false">
+			<syncOptions noDeletes="true" noUpdates="true"/>
+			<customKeys>
+				<TransferTableColumn sourceCol="KEY" targetCol="KEY" isKey="true"/>
+			</customKeys>
+		</TransferTableJob>
+	</transferBlock>
+
+	
+</TransferJob>

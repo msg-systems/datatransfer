@@ -1,0 +1,17 @@
+﻿<?xml version='1.0'?>
+<Obfuscator>
+  <!-- Release Config -->
+  <Var name="InPath" value=".\bin\Release" />
+  <Var name="OutPath" value=".\bin\Obfuscated" />
+
+  <!-- Debug Config -->
+  <!--<Var name="InPath" value=".\bin\Debug" />-->
+  
+  <Module file="$(InPath)\msa.DataTransfer.exe" />
+  <Module file="$(InPath)\msa.DSL.dll" />
+  <Module file="$(InPath)\msa.Logging.dll" />
+  
+  <!-- Falls Signing verwendet wird folgende Zeile zufügen 
+  <Var name="KeyFile" value="key.snk" />
+  -->
+</Obfuscator>

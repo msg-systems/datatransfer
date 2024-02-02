@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						 xsi:noNamespaceSchemaLocation ="job.xsd">
+
+		<settings writeLogToFile="Log\transferLog_[ddMMyyyy HH_mm_ss].log">
+		</settings>
+  
+  
+	<transferBlock name="DB2-ToXML-Transfer"
+        conStringSourceType="IBM.Data.DB2" conStringSource="Server=dbserver:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+        conStringTargetType="Custom.XML" conStringTarget="">
+
+		<TransferTableJob   sourceTable="ZAP.PIM_Hardware" sourceWhere = "art='fw'"
+                            targetTable="C:\temp\exportXML.xml" identicalColumns="true"/>
+	</transferBlock>
+
+</TransferJob>

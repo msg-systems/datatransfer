@@ -1,0 +1,745 @@
+<?xml version="1.0"?>
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						 xsi:noNamespaceSchemaLocation = "job.xsd">
+
+		<settings writeLogToFile="Log\transferLog_[ddMMyyyy HH_mm_ss].log">
+		</settings>
+
+	<!-- Beispiel LDAP-Anbindung -->
+	<transferBlock name="LDAPBatch"
+									 conStringSourceType="System.Data.OleDb"
+									 conStringSource="Provider=ADSDSOObject"
+								 conStringTargetType="Custom.Export.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob targetTable="C:\temp\msg services ADSI.csv"	identicalColumns="true">
+			
+			<!-- Geht beides and company = 'msg services ag' - LDAPS muss man einfach mit Port 389 oder 636 angeben, NICHT LDAPS:// schreiben - nur LDAP://! -->
+			 <customSourceSelect>SELECT cn FROM 'LDAP://myLDAPServer:636/dc=myDC' where objectCategory='user' and company = 'msg services ag'</customSourceSelect> 
+      <!-- <customSourceSelect>&lt;LDAP://myLDAPServer:389/dc=myDC&gt;;(&amp;(objectCategory=user)(objectClass=user)(userPrincipalName=*)(company=msg services ag));name,userPrincipalName,mail,company,distinguishedName,memberOf;subtree</customSourceSelect>-->
+			
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel LDAP-Anbindung -->
+	<transferBlock name="LDAPBatchCustom"
+									 conStringSourceType="Custom.Import.LDAP"
+									 conStringSource=""
+								 conStringTargetType="Custom.Export.CSV" conStringTarget="" disableTransaction="true">
+
+		
+		<TransferTableJob targetTable="C:\temp\msg services ADSI.csv"	identicalColumns="true">
+		
+			<!-- Variante SourceTable und ColumnMap -->
+			<!-- sourceTable="LDAP://myLDAPServer:389/OU=myOU users,dc=myDC" sourceWhere="(&amp;(objectCategory=user)(company=msg systems ag))" -->
+
+			<!--<columnMap>
+				<TransferTableColumn sourceCol="cn" targetCol="cn"/>
+				<TransferTableColumn sourceCol="sn" targetCol="sn"/>
+				<TransferTableColumn sourceCol="int(userAccountControl &amp; 2) > 0" targetCol="disabled"/>
+				<TransferTableColumn sourceCol="int(userAccountControl &amp; 8) > 0" targetCol="HomeDirReq"/>
+        LDAP://myLDAPServer:389/OU=myOU users,dc=myDc
+        Niemals LDAPS:// angeben - nur den Port auf 636 umstellen
+			</columnMap>-->
+			
+			<!-- Variante CustomSelect-->
+			<customSourceSelect> 
+				SELECT cn, givenName + ' ' + sn as fullname, 
+				cint(userAccountControl &amp; 2)&gt;0 as disbaled,
+				cdate8(lastLogon) as lastLogon,
+				cDateGen(WhenCreated) as created,
+				if(givenname = 'Martin', 'das ist Martin', 'das ist wer anders') as MartinIdentifier,
+				cdate8(accountExpires) as Expires,
+				splitRows(proxyAddresses) as proxyAddress
+				FROM LDAP://myLDAPServer:636/OU=myOU,dc=myDC
+				WHERE (&amp;(objectCategory=user)(company=msg systems ag)(!userAccountControl:1.2.840.113556.1.4.803:=2))
+			</customSourceSelect>
+
+		</TransferTableJob>
+
+		<TransferTableJob targetTable="C:\temp\msg services ADSI2.csv"	identicalColumns="true">
+			
+			<customSourceSelect>
+				SELECT samaccountname,
+				loadBigArray('member') as member
+				FROM LDAP://myLDAPServer:636/OU=myOU,dc=myDC
+				WHERE (&amp;(objectCategory=group)(cn=groupname))
+			</customSourceSelect>
+
+		</TransferTableJob>
+		
+	</transferBlock>
+
+
+	<!-- Beispiel Lotus-Anbindung -->
+	<!-- Attribut für Transaktionale Verarbeitung -->
+  <transferBlock name="LotusBatch"
+									 conStringSourceType="System.Data.Odbc"
+									 conStringSource="Driver={Lotus Notes SQL Driver (*.nsf)};Server=notesserver/domain;database=applic/msg0001.nsf;Uid=Notes Support/msg;Pwd=Geheim"
+                 conStringTargetType="Custom.CSV" conStringTarget="">
+    
+    <!--
+    conStringTargetType="System.Data.SqlClient"
+									 conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
+                   Test.JobModel
+                   -->
+
+    <!-- IMP_JobModelEntries fmJobModelEntry -->
+    <TransferTableJob sourceTable="IMP_JobModelEntries" targetTable="C:\temp\blabla.csv"
+											deleteBefore="false" identicalColumns="true">
+    </TransferTableJob>
+  </transferBlock>
+
+
+	<!-- Beispiel CSV-Export -->
+	<transferBlock name="CSV-Transfer"
+								 conStringSourceType="IBM.Data.DB2" conStringSource="Server=servername:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+								 conStringTargetType="Custom.Export.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob sourceTable="dbname.PIM_Hardware" sourceWhere = "art='fw'"
+											targetTable="C:\temp\hardware.csv" identicalColumns="true"/>
+	</transferBlock>
+
+  <!-- Beispiel XML-Notes-HTTP/Export aus Protokollquelle -->
+  <!-- conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true" -->
+  <transferBlock name="NotesXML_CSV-Transfer_Protocol"
+								 conStringSourceType="Custom.XML" conStringSource="AuthType=Notes;Server=notesserverurl;User=support;Password=Geheim"
+								conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+    <!-- targetTable="C:\temp\notesExport.csv" -->
+    <TransferTableJob sourceTable="http://notesserverurl/msg/msg0057.nsf/test4?ReadViewEntries" targetTable="C:\temp\exportXMl.csv" identicalColumns="false">
+      <columnMap>
+        <TransferTableColumn sourceCol="glKey" targetCol="key" isKey="true" />
+      </columnMap>
+    </TransferTableJob>
+  </transferBlock>
+
+  <!-- Beispiel XML-Notes-HTTP/Export aus Protokollquelle lotusnotes99 -->
+  <transferBlock name="NotesXML_DB2-Transfer_Protocol"
+								 conStringSourceType="Custom.XML" conStringSource="AuthType=LotusNotes;Server=notesserverurl;User=support;Password=Geheim"
+								 conStringTargetType="IBM.Data.DB2" conStringTarget="Server=servername:50000;Database=dbname;UserID=db2admin;pwd=geheim">
+
+    <!-- &amp;start=1&amp;count=20 -->
+    <TransferTableJob sourceTable="http://notesserverurl/msg/msg0057.nsf/expHardwareAll?ReadViewEntries" 
+                      deleteBefore="true" targetTable="UnitTest.PIM_Hardware" identicalColumns="false">
+      <columnMap>
+        <TransferTableColumn sourceCol="GLKEY" targetCol="KEY"/>
+        <TransferTableColumn sourceCol="GLOBJECTTYPE" targetCol="OBJECTTYPE"/>
+        <TransferTableColumn sourceCol="GLOBJECTTYPE2" targetCol="OBJECTTYPE2"/>
+        <TransferTableColumn sourceCol="GLKEYDATE" targetCol="KEYDATE"/>
+        <TransferTableColumn sourceCol="GLKEYNUMBER" targetCol="KEYNUMBER"/>
+        <TransferTableColumn sourceCol="glStatus" targetCol="STATUS"/>
+        <TransferTableColumn sourceCol="glStatus_Text" targetCol="STATUS_TEXT"/>
+        <TransferTableColumn sourceCol="HW_Anschaffungsdatum" targetCol="ANSCHAFFUNGSDATUM"/>
+        <TransferTableColumn sourceCol="HW_Lieferant" targetCol="LIEFERANT"/>
+        <TransferTableColumn sourceCol="HW_Beschaffungsart" targetCol="HW_BESCHAFFUNGSART"/>
+        <TransferTableColumn sourceCol="''" targetCol="HOTFIXE"/>
+        <TransferTableColumn sourceCol="HW_Servicepack" targetCol="SERVICEPACK"/>
+        <TransferTableColumn sourceCol="HW_Betriebssystem" targetCol="BETRIEBSSYSTEM"/>
+        <TransferTableColumn sourceCol="HW_Modell" targetCol="MODELL"/>
+        <TransferTableColumn sourceCol="HW_Plattform" targetCol="HW_PLATTFORM"/>
+        <TransferTableColumn sourceCol="HW_Hersteller" targetCol="HW_HERSTELLER"/>
+        <TransferTableColumn sourceCol="''" targetCol="ANSPRECHPARTNER"/>
+        <TransferTableColumn sourceCol="''" targetCol="VERTRETUNGEN"/>
+        <TransferTableColumn sourceCol="HW_OmnitrackerGruppe" targetCol="BEARBEITERGRUPPE"/>
+        <TransferTableColumn sourceCol="HW_Kategorie" targetCol="TEC_KATEGORIE"/>
+        <TransferTableColumn sourceCol="HW_Rack" targetCol="RACK"/>
+        <TransferTableColumn sourceCol="HW_DMZCustomer" targetCol="NETZART"/>
+        <TransferTableColumn sourceCol="HW_RZcomp" targetCol="RZ"/>
+        <TransferTableColumn sourceCol="HW_Standort_Text" targetCol="STANDORT"/>
+        <TransferTableColumn sourceCol="''" targetCol="HOSTID"/>
+        <TransferTableColumn sourceCol="HW_Seriennummer" targetCol="SERIENNUMMER"/>
+        <TransferTableColumn sourceCol="HW_Geraetekennung" targetCol="GERAETEKENNUNG"/>
+        <TransferTableColumn sourceCol="HW_Subnetz" targetCol="SUBNETZ"/>
+        <TransferTableColumn sourceCol="HW_Gateway" targetCol="GATEWAY"/>
+        <TransferTableColumn sourceCol="HW_Art" targetCol="ART"/>
+        <TransferTableColumn sourceCol="HW_Art_Text" targetCol="ART_TEXT"/>
+        <TransferTableColumn sourceCol="HW_Kurzbeschreibung" targetCol="KURZBESCHREIBUNG"/>
+        <TransferTableColumn sourceCol="HW_DNS" targetCol="HW_DNS"/>
+        <TransferTableColumn sourceCol="HW_NodeName" targetCol="HW_NODENAME"/>
+        <TransferTableColumn sourceCol="HW_Aufwand" targetCol="AUFWAND"/>
+        <TransferTableColumn sourceCol="0" targetCol="NUTZUNGSINTENSITAET"/>
+        <TransferTableColumn sourceCol="0" targetCol="GEWICHTUNGISERVICE"/>
+        <TransferTableColumn sourceCol="HW_GewichtungHardware" targetCol="GEWICHTUNGHARDWARE"/>
+        <TransferTableColumn sourceCol="ref_Hardwaregruppe" targetCol="REF_HARDWAREGRUPPE"/>
+        <TransferTableColumn sourceCol="HW_NoIPAddress_comp" targetCol="IP_ADRESSEN"/>
+        <TransferTableColumn sourceCol="HW_Abschaltung" targetCol="AUSLAUFDATUM"/>
+        <TransferTableColumn sourceCol="''" targetCol="MSGID_VERANTWORTLICHER"/>
+        <TransferTableColumn sourceCol="''" targetCol="msgID_VERTRETER"/>
+        <TransferTableColumn sourceCol="HW_ServiceOTMandant" targetCol="OT_MANDANT"/>
+        <TransferTableColumn sourceCol="HW_AssetImScope" targetCol="ASSETIMSCOPE"/>
+        <TransferTableColumn sourceCol="HW_Standort_EntryPoint" targetCol="STANDORT_ENTRYPOINT"/>
+        <TransferTableColumn sourceCol="ref_Rechenzentrum" targetCol="REF_RECHENZENTRUM"/>
+        <TransferTableColumn sourceCol="HW_HEATAccount_Service" targetCol="HEATAccount_Service"/>
+        <TransferTableColumn sourceCol="HW_Timeperiod" targetCol="Timeperiod"/>
+        <TransferTableColumn sourceCol="ref_Patchgruppe" targetCol="PATCHGRUPPE_KEY"/>
+        <TransferTableColumn sourceCol="dsp_Patchgruppe" targetCol="Patchgruppe"/>
+        <TransferTableColumn sourceCol="glPatch_LetzterLauf" targetCol="Patch_LetzterLauf"/>
+        <TransferTableColumn sourceCol="glPatch_Durchgefuehrt_Von_comp" targetCol="Patch_Durchgefuehrt_Von"/>
+        <TransferTableColumn sourceCol="glPatch_NotPatchedReason_Text" targetCol="NOTPATCHEDREASON_TEXT"/>
+        <TransferTableColumn sourceCol="glPatch_NotPatchedReason" targetCol="NOTPATCHEDREASON"/>
+        <TransferTableColumn sourceCol="HW_BackupPolicy" targetCol="BackupPolicy"/>
+      </columnMap>
+    </TransferTableJob>
+  </transferBlock>
+
+  <!-- Beispiel XML-Notes-HTTP/Export aus Protokollquelle lotusnotes99 -->
+  <transferBlock name="NotesXML_DB2-Transfer_Protocol2"
+								 conStringSourceType="Custom.XML" conStringSource="AuthType=LotusNotes;Server=notesserverurl;User=support;Password=Geheim"
+								 conStringTargetType="IBM.Data.DB2" conStringTarget="Server=servername:50000;Database=dbname;UserID=db2admin;pwd=geheim">
+
+    <!-- &amp;start=1&amp;count=20 -->
+    <TransferTableJob sourceTable="http://notesserverurl/msg/msg0057.nsf/expDienstAll?ReadViewEntries" 
+                      deleteBefore="true" targetTable="UnitTest.PIM_Dienste" identicalColumns="false">
+      <columnMap>
+        <TransferTableColumn sourceCol="SV_Art" targetCol="ART"/>
+				<TransferTableColumn sourceCol="SV_Art_Text" targetCol="ART_TEXT"/>
+				<TransferTableColumn sourceCol="SV_Aufwand" targetCol="AUFWAND"/>
+				<TransferTableColumn sourceCol="SV_Omnitrackergruppe" targetCol="BEARBEITERGRUPPE"/>
+				<TransferTableColumn sourceCol="SV_Details" targetCol="DETAILS"/>
+				<TransferTableColumn sourceCol="glStatus_ChangeDate" targetCol="ERINNERUNGSDATUM"/>
+				<TransferTableColumn sourceCol="SV_Erinnerungsfrist" targetCol="ERINNERUNGSFRIST"/>
+				<TransferTableColumn sourceCol="0" targetCol="GEWICHTUNGISERVICE"/>
+				<TransferTableColumn sourceCol="SV_Kategorie" targetCol="KATEGORIE"/>
+				<TransferTableColumn sourceCol="GLKEY" targetCol="KEY"/>
+				<TransferTableColumn sourceCol="GLKEYDATE" targetCol="KEYDATE"/>
+				<TransferTableColumn sourceCol="GLKEYNUMBER" targetCol="KEYNUMBER"/>
+				<TransferTableColumn sourceCol="SV_Name" targetCol="NAME"/>
+				<TransferTableColumn sourceCol="0" targetCol="NUTZUNGSINTENSITAET"/>
+				<TransferTableColumn sourceCol="GLOBJECTTYPE" targetCol="OBJECTTYPE"/>
+				<TransferTableColumn sourceCol="SV_ReferenzArt" targetCol="REFERENZART"/>
+				<TransferTableColumn sourceCol="SV_ReferenzArt_Text" targetCol="REFERENZART_TEXT"/>
+				<TransferTableColumn sourceCol="ref_Dienstgruppe" targetCol="REF_DIENSTGRUPPE"/>
+				<TransferTableColumn sourceCol="ref_System" targetCol="REF_SYSTEM"/>
+				<TransferTableColumn sourceCol="SV_SAP_User" targetCol="SAP_USER"/>
+				<TransferTableColumn sourceCol="SV_SAP_Abschaltung" targetCol="SAP_ABSCHALTUNG"/>
+				<TransferTableColumn sourceCol="SV_SAP_Wofuer" targetCol="SAP_WOFUER"/>
+				<TransferTableColumn sourceCol="SV_SAP_Am" targetCol="SAP_AM"/>
+				<TransferTableColumn sourceCol="SV_SAP_Von" targetCol="SAP_VON"/>
+				<TransferTableColumn sourceCol="SV_SAP_Vertretung" targetCol="SAP_VERTRETUNG"/>
+				<TransferTableColumn sourceCol="SV_SAP_Verantwortlich" targetCol="SAP_VERANTWORTLICH"/>
+				<TransferTableColumn sourceCol="SV_SAP_Komponenten" targetCol="SAP_KOMPONENTEN"/>
+				<TransferTableColumn sourceCol="SV_SAP_DBVersion" targetCol="SAP_DBVERSION"/>
+				<TransferTableColumn sourceCol="SV_SAP_DB" targetCol="SAP_DB"/>
+				<TransferTableColumn sourceCol="SV_SAP_Patch" targetCol="SAP_PATCH"/>
+				<TransferTableColumn sourceCol="SV_SAP_Release" targetCol="SAP_RELEASE"/>
+				<TransferTableColumn sourceCol="SV_SAP_Installation" targetCol="SAP_INSTALLATION"/>
+				<TransferTableColumn sourceCol="SV_SAP_System" targetCol="SAP_SYSTEM"/>
+				<TransferTableColumn sourceCol="SV_SAP_SystemType" targetCol="SAP_SYSTEMTYP"/>
+				<TransferTableColumn sourceCol="SV_SAP_Port_comp" targetCol="SAP_SYSTEMPORT"/>
+				<TransferTableColumn sourceCol="glStatus" targetCol="STATUS"/>
+				<TransferTableColumn sourceCol="glStatus_Text" targetCol="STATUS_TEXT"/>
+				<TransferTableColumn sourceCol="SV_Typ" targetCol="TYP"/>
+				<TransferTableColumn sourceCol="SV_Typ_Text" targetCol="TYP_TEXT"/>
+				<TransferTableColumn sourceCol="''" targetCol="VERANTWORTLICH"/>
+				<TransferTableColumn sourceCol="''" targetCol="VERTRETUNG"/>
+				<TransferTableColumn sourceCol="SV_AnteilVerfuegbarkeit" targetCol="VERFUEGBARKEITSBEITRAG"/>
+				<TransferTableColumn sourceCol="SV_Version" targetCol="VERSION"/>
+				<TransferTableColumn sourceCol="SV_Zweck" targetCol="ZWECK"/>
+				<TransferTableColumn sourceCol="SV_Fixpreis_Vorhanden" targetCol="FIXPREIS_VORHANDEN"/>
+				<TransferTableColumn sourceCol="SV_Fixpreis" targetCol="FIXPREIS"/>
+				<TransferTableColumn sourceCol="SV_Kapazitaet" targetCol="KAPAZITAET"/>
+				<TransferTableColumn sourceCol="SV_KapazitaetEinheit" targetCol="KAPAZITAET_EINHEIT"/>
+				<TransferTableColumn sourceCol="SV_Leistungsschein_Text" targetCol="LEISTUNGSSCHEIN"/>
+				<TransferTableColumn sourceCol="SV_SAP_Systemnummer" targetCol="SAP_Systemnummer"/>
+				<TransferTableColumn sourceCol="glFPKategorie2012" targetCol="Kategorie_Plan"/>
+				<TransferTableColumn sourceCol="SV_Fixpreis_2012" targetCol="Fixpreis_Plan"/>
+				<TransferTableColumn sourceCol="ref_Hardware" targetCol="REF_HARDWARE"/>
+				<TransferTableColumn sourceCol="ref_Cluster" targetCol="REF_CLUSTER"/>
+				<TransferTableColumn sourceCol="SV_BI_Relevant" targetCol="BI_RELEVANT"/>
+				<TransferTableColumn sourceCol="dsp_Patchgruppe" targetCol="Patchgruppe"/>
+				<TransferTableColumn sourceCol="glPatch_LetzterLauf" targetCol="Patch_LetzterLauf"/> 
+				<TransferTableColumn sourceCol="glPatch_Durchgefuehrt_Von_comp" targetCol="Patch_Durchgefuehrt_Von"/> 
+				<TransferTableColumn sourceCol="ref_Patchgruppe" targetCol="PATCHGRUPPE_KEY"/>
+				<TransferTableColumn sourceCol="glPatch_Verrechnung" targetCol="PATCH_VERRECHNUNG"/>
+				<TransferTableColumn sourceCol="glPatch_Historie" targetCol="PATCH_HISTORIE"/>
+				<TransferTableColumn sourceCol="glPatch_NotPatchedReason_Text" targetCol="NOTPATCHEDREASON_TEXT"/>
+				<TransferTableColumn sourceCol="glPatch_NotPatchedReason" targetCol="NOTPATCHEDREASON"/>
+      </columnMap>
+    </TransferTableJob>
+  </transferBlock>
+  
+  <!-- Beispiel CSV-Im/Export aus Protokollquelle -->
+  <transferBlock name="JSON_CSV-Transfer_Protocol"
+								 conStringSourceType="Custom.JSON" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+    <TransferTableJob targetTable="C:\temp\jsonExport.csv" identicalColumns="true">
+      <customSourceSelect>
+        <![CDATA[
+				SELECT f1.test, f1.number, f1.date as datum
+				FROM jsonPath=$[2].subarray:::file://D:\DevSpace\VisualStudio\SQL_DWH\DataTransfer\TestData\json1.json as f1
+				]]>
+      </customSourceSelect>
+    </TransferTableJob>
+  </transferBlock>
+
+
+  <!-- Beispiel CSV-Im/Export aus Protokollquelle -->
+	<transferBlock name="CSV_CSV-Transfer_Protocol"
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob targetTable="C:\temp\hardware_Prot.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT f1.KEY
+				FROM file://c:/temp/hardware.csv as f1
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export aus Protokollquelle -->
+	<transferBlock name="CSV_CSV-Transfer_ProtocolHttp"
+								 conStringSourceType="Custom.CSV" conStringSource="delimiter=,"
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob 
+			
+			targetTable="C:\temp\monitoring.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT name, tags, time, Host, Service, avg_value, max_value, min_value
+				FROM http-method=get:::http-header=Accept:application/csv:::http://servername:port/query?db=monitoring&epoch=s&q=select%20*%20from%20AggregierteDaten./.*/
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export mit WHERE und benannter Tabelle t1 -->
+	<transferBlock name="CSV_CSV-Transfer_NamedSingleWhere"
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob targetTable="C:\temp\hardware2.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT f1.KEY as s, f1.LIEFERANT, f1.BETRIEBSSYSTEM, f1.KEY + ' ' + f1.KEY as test, 'test' as test2
+				FROM C:\temp\hardware.csv as f1
+				WHERE f1.KEY = 'h-fw-0501-8' && f1.KEY = 'h-fw-0501-8'
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export mit WHERE und unbenannter Tabelle -->
+	<transferBlock name="CSV_CSV-Transfer_NonNamedSingleWhere"
+									conStringSourceType="Custom.CSV" conStringSource=""
+									conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">  
+		
+		<TransferTableJob targetTable="C:\temp\hardware3.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT KEY as s, LIEFERANT, BETRIEBSSYSTEM, KEY + ' ' + KEY as test, 'test' as test2
+				FROM C:\temp\hardware.csv
+				WHERE KEY = 'h-fw-0501-8' && KEY = 'h-fw-0501-8'
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export mit WHERE und benannter Tabelle und WHERE-Bedingung mit Attirbuten die nicht im SELECT stehen -->
+	<transferBlock name="CSV_CSV-Transfer_NamedSingleWhereWithNonSelectCols" 
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+		
+		<TransferTableJob targetTable="C:\temp\hardware4.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT f1.KEY as s, f1.LIEFERANT, f1.BETRIEBSSYSTEM, f1.KEY + ' ' + f1.KEY as test, 'test' as test2
+				FROM C:\temp\hardware.csv as f1
+				WHERE f1.KEY = 'h-fw-0501-8' && f1.KEY = 'h-fw-0501-8' && f1.MEMORY_EINHEIT = 'MByte'
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export ohne WHERE und mehreren benannten Tabelle und JOIN-Bedingung mit Attirbuten die nicht im SELECT stehen -->
+	<transferBlock name="CSV_CSV-Transfer_MultiJoinWhereWithNonSelectCols"
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+		
+	<TransferTableJob targetTable="C:\temp\hardware5.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT t1.KEY as s, t1.LIEFERANT, t2.BETRIEBSSYSTEM, t1.KEY + ' x ' + t1.MEMORY_EINHEIT as test, 'test' as test2
+				FROM C:\temp\hardware.csv as t1 inner join C:\temp\hardware.csv as t2 on t1.KEY = t2.KEY
+				WHERE t1.KEY <> '' && t2.KEY <> '' and startsWith(t1.KEY, 'h-')
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export ohne WHERE und mehreren benannten Tabelle und JOIN-Bedingung mit Attirbuten die nicht im SELECT stehen sowie kombinierten Attributen -->
+	<transferBlock name="CSV_CSV-Transfer_MultiJoinWhereWithNonSelectColsAndCompMulti"
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob targetTable="C:\temp\hardware6.csv" identicalColumns="true">
+			<customSourceSelect>
+				<![CDATA[
+				SELECT t1.KEY as s, t1.LIEFERANT, t2.BETRIEBSSYSTEM, t1.KEY + ' x ' + t2.MEMORY_EINHEIT as test, 'test' as test2
+				FROM C:\temp\hardware.csv as t1 inner join C:\temp\hardware.csv as t2 on t1.KEY = t2.KEY
+				WHERE t1.KEY <> '' && t2.KEY <> '' and startsWith(t1.KEY, 'h-')
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Im/Export mit Standardmitteln sourceTable und sourceWhere -->
+	<transferBlock name="CSV_CSV-Transfer_SourceTableSourceWhere"
+								 conStringSourceType="Custom.CSV" conStringSource=""
+								 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob sourceTable="C:\temp\hardware.csv" sourceWhere="KEY = 'h-fw-0501-8'"
+											targetTable="C:\temp\hardware6.csv">
+			<columnMap>
+				<TransferTableColumn sourceCol="KEY" targetCol="KEY"/>
+				<TransferTableColumn sourceCol="LIEFERANT" targetCol="LIEFERANT"/>
+				<TransferTableColumn sourceCol="BETRIEBSSYSTEM" targetCol="BS"/>
+			</columnMap>
+		</TransferTableJob>
+	</transferBlock>
+
+	<!-- Beispiel CSV-Export -->
+	<transferBlock name="JSON-Transfer"
+								 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+								 conStringTargetType="Custom.Export.JSON" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob sourceTable="dbname.PIM_Hardware" targetTable="C:\temp\hardware.json" identicalColumns="true"/>
+
+	</transferBlock>
+	
+
+	<transferBlock name="LotusBatch2"
+									 conStringTargetType="System.Data.Odbc"
+									 conStringTarget="Driver={Lotus Notes SQL Driver (*.nsf)};Server=notesserver/msg;database=test_msg0001.nsf;Uid=Notes Support/msg;pwd=Geheim"
+									 conStringSourceType="System.Data.SqlClient"
+									 conStringSource="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
+								 disableTransaction="true">
+
+		<TransferTableJob sourceTable ="Test.JobModel" targetTable="fmJobModelEntry" deleteBefore="false" identicalColumns="false" sync="true">
+			<columnMap>
+				<TransferTableColumn sourceCol="JOB_ID" targetCol="JOB_ID" isKey="true" />
+				<TransferTableColumn sourceCol="JOB_Cluster" targetCol="JOB_Cluster"/>
+        <TransferTableColumn sourceCol="JOB_Family" targetCol="JOB_Family"/>
+        <TransferTableColumn sourceCol="JOB_Variant" targetCol="JOB_Variant"/>
+        <TransferTableColumn sourceCol="JOB_Title" targetCol="JOB_Title"/>
+			</columnMap>
+		</TransferTableJob>
+	</transferBlock>
+
+	<transferBlock name="LotusBatch3"
+									 conStringSourceType="System.Data.Odbc"
+									 conStringSource="Driver={Lotus Notes SQL Driver (*.nsf)};Server=notesserver/msg;database=applic/msg0193.nsf;Uid=Notes Support/msg;Pwd=Geheim"
+									 conStringTargetType="System.Data.SqlClient"
+									 conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="exp_Kostentreiber" targetTable="Test.Lotus_Meta_KT"
+											deleteBefore="true" identicalColumns="true">
+		</TransferTableJob>
+	</transferBlock>
+
+
+	<!-- Beispiel Excel-Anbindung -->
+	<transferBlock name="ExcelBatch"
+									 conStringSourceType="System.Data.OleDb"
+									 conStringSource="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=TestData\SSIS_Export.xlsx;Extended Properties=&quot;Excel 12.0 Xml;HDR=YES&quot;;"
+									 conStringTargetType="System.Data.SqlClient"
+									 conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+<!--		<TransferTableJob sourceTable="[SourceSheet$A:D]" targetTable="Test.Ampel" sync="true" identicalColumns="true" maxRecordDiff="10.0"> 
+<customKeys>
+        <TransferTableColumn sourceCol="APPLIKATION" targetCol="APPLIKATION" isKey="true"/>
+      </customKeys>-->
+    <TransferTableJob sourceTable="[SourceSheet$A:D]" targetTable="Test.Ampel" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0">
+		</TransferTableJob>
+	</transferBlock>
+
+	
+	<!-- Beispiel Access-Anbindung -->
+	<transferBlock name="AccessBatch"
+								 conStringSourceType="System.Data.OleDb"
+								 conStringSource="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\Export-Bearbeitergruppen.mdb;Persist Security Info=True"
+								 conStringTargetType="System.Data.SqlClient" 
+								 conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="Bearbeitergruppe" targetTable="Test.Bearbeitergruppe" deleteBefore="true" identicalColumns="true">
+		</TransferTableJob>
+	</transferBlock>
+
+
+	<transferBlock name="MergeTest"
+								 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+								 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+		<preCondition  select="SELECT status from dbname.Ampel where Applikation='ORG'" condition="status:green" retryCount="3" retryDelay="15" />
+
+		<TransferTableJob sourceTable="dbname.ORG_Standorte" targetTable="Org.Standorte_Stage" deleteBefore="true" identicalColumns="true">
+			<mergeOptions merge="true" autoMergeColumns="true" targetTable="Org.Standorte" >
+				<mergeKey sourceCol="Key" targetCol="Key" />
+			</mergeOptions>
+		</TransferTableJob>
+		
+	</transferBlock>
+
+
+	<transferBlock name="SyncTest"
+								 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+								 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+		<preCondition  select="SELECT status from dbname.Ampel where Applikation='ORG'" condition="status:green" retryCount="3" retryDelay="15" />
+
+		<TransferTableJob sourceTable="dbname.ORG_Standorte" targetTable="Org.Standorte_Stage" identicalColumns="true" sync="true">
+			<customKeys>
+				<TransferTableColumn sourceCol="Key" targetCol="Key" isKey="true"/>
+			</customKeys>
+		</TransferTableJob>
+
+	</transferBlock>
+	
+	<transferBlock name="ConditionTest"
+							 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;password=geheim"
+							 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+		<preCondition select="SELECT status from dbname.Ampel where Applikation='ORG'" condition="status:green" retryCount="3" retryDelay="15" />
+
+		<TransferTableJob sourceTable="dbname.ORG_Standorte" targetTable="Org.Standorte_Stage" deleteBefore="true" identicalColumns="true"/>
+
+	</transferBlock>
+
+
+	<transferBlock name="EncryptedPWTestUserEncryption"
+							 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;password=AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAvIbHDIUAHUCK5Yk39tj3cwAAAAACAAAAAAADZgAAwAAAABAAAABJhE2lMNN5zAvrhRGFVFIdAAAAAASAAACgAAAAEAAAALYhzELLclSqImPParmtEpYQAAAA9hMhxNxcWkQ48zKb0IIGEBQAAAAn0BaonwUeZWPvbLcUKPJnsbq1Uw=="
+							 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="dbname.ORG_Standorte" targetTable="Org.Standorte_Stage" deleteBefore="true" identicalColumns="true"/>
+	</transferBlock>
+
+
+	<transferBlock name="EncryptedPWTestMachineEncryption"
+							 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;password=AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAALf3UCp0zZ0O65K3/HSexOAQAAAACAAAAAAADZgAAwAAAABAAAADWKFMAXJ8JF1wt2q0rZ0AGAAAAAASAAACgAAAAEAAAAG1g4n3vwGg0m5Eov5yMo5wQAAAAf+bw68B0HJ1/2HcemnjicxQAAABeSPdSn+raJQ7ZjDnCbHC7emRoyw=="
+							 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="dbname.ORG_Standorte" targetTable="Org.Standorte_Stage" deleteBefore="true" identicalColumns="true"/>
+	</transferBlock>
+
+
+<!-- PerformanceTest mit Jobs von DB2 zu MSSQL mit ca. 7000 Datensätzen -->
+	<transferBlock name="PerfTest"
+									 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;password=geheim"
+									 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="dbname.PIM_Hardware" targetTable="CMDB.Hardware_Stage" deleteBefore="true" identicalColumns="false" maxRecordDiff="30">
+			<columnMap>
+				<TransferTableColumn sourceCol="Key" targetCol="Key"/>
+				<TransferTableColumn sourceCol="HW_Nodename" targetCol="Nodename"/>
+				<TransferTableColumn sourceCol="Status" targetCol="Status"/>
+				<TransferTableColumn sourceCol="Status_Text" targetCol="Status_Text"/>
+				<TransferTableColumn sourceCol="Kurzbeschreibung" targetCol="Kurzbeschreibung"/>
+				<TransferTableColumn sourceCol="HostId" targetCol="HostId"/>
+				<TransferTableColumn sourceCol="Seriennummer" targetCol="Seriennummer"/>
+				<TransferTableColumn sourceCol="Geraetekennung" targetCol="Geraetekennung"/>
+				<TransferTableColumn sourceCol="Subnetz" targetCol="Subnetz"/>
+				<TransferTableColumn sourceCol="Gateway" targetCol="Gateway"/>
+				<TransferTableColumn sourceCol="IP_Adressen" targetCol="IP_Adressen"/>
+				<TransferTableColumn sourceCol="Art" targetCol="Art"/>
+				<TransferTableColumn sourceCol="Art_Text" targetCol="Art_Text"/>
+				<TransferTableColumn sourceCol="HW_Dns" targetCol="Dns"/>
+				<TransferTableColumn sourceCol="Anschaffungsdatum" targetCol="Anschaffungsdatum"/>
+				<TransferTableColumn sourceCol="Lieferant" targetCol="Lieferant"/>
+				<TransferTableColumn sourceCol="HW_Beschaffungsart" targetCol="Beschaffungsart"/>
+				<TransferTableColumn sourceCol="Hoeheneinheit" targetCol="Hoeheneinheit"/>
+				<TransferTableColumn sourceCol="Rackmount" targetCol="Rackmount"/>
+				<TransferTableColumn sourceCol="Netzteile_Leistung" targetCol="Netzteile_Leistung"/>
+				<TransferTableColumn sourceCol="cast(replace(Netzteile_anzahl, ',', '') as integer)" targetCol="Netzteile_Anzahl"/>
+				<TransferTableColumn sourceCol="cast(replace(RAM_Belegt, ',', '') as integer)" targetCol="RAM_Belegt"/>
+				<TransferTableColumn sourceCol="cast(replace(RAM_Insgesamt, ',', '') as integer)" targetCol="RAM_Insgesamt"/>
+				<TransferTableColumn sourceCol="cast(replace(Memory_Anzahl_Max, ',', '') as integer)" targetCol="Memory_Anzahl_Max"/>
+				<TransferTableColumn sourceCol="Memory_Einheit" targetCol="Memory_Einheit"/>
+				<TransferTableColumn sourceCol="cast(replace(Memory_Anzahl, ',', '') as integer)" targetCol="Memory_Anzahl"/>
+				<TransferTableColumn sourceCol="cast(replace(CPU_Anzahl_Max, ',', '') as integer)" targetCol="CPU_Anzahl_Max"/>
+				<TransferTableColumn sourceCol="cast(replace(CPU_Anzahl, ',', '') as integer)" targetCol="CPU_Anzahl"/>
+				<TransferTableColumn sourceCol="CPU_Architektur" targetCol="CPU_Architektur"/>
+				<TransferTableColumn sourceCol="CPU_Takt_Einheit" targetCol="CPU_Takt_Einheit"/>
+				<TransferTableColumn sourceCol="cast(replace(CPU_Takt, ',', '') as integer)" targetCol="CPU_Takt"/>
+				<TransferTableColumn sourceCol="Hotfixe" targetCol="Hotfixe"/>
+				<TransferTableColumn sourceCol="Servicepack" targetCol="Servicepack"/>
+				<TransferTableColumn sourceCol="Betriebssystem" targetCol="Betriebssystem"/>
+				<TransferTableColumn sourceCol="Modell" targetCol="Modell"/>
+				<TransferTableColumn sourceCol="HW_Plattform" targetCol="Plattform"/>
+				<TransferTableColumn sourceCol="HW_Hersteller" targetCol="Hersteller"/>
+				<TransferTableColumn sourceCol="Vertretungen" targetCol="Vertretungen"/>
+				<TransferTableColumn sourceCol="Ansprechpartner" targetCol="Ansprechpartner"/>
+				<TransferTableColumn sourceCol="TEC_Kategorie" targetCol="Monitoring_Kategorie"/>
+				<TransferTableColumn sourceCol="Rack" targetCol="Rack"/>
+				<TransferTableColumn sourceCol="Netzart" targetCol="Netzart"/>
+				<TransferTableColumn sourceCol="RZ" targetCol="RZ"/>
+				<TransferTableColumn sourceCol="Standort" targetCol="Standort"/>
+				<TransferTableColumn sourceCol="Aufwand" targetCol="Aufwand"/>
+				<TransferTableColumn sourceCol="Nutzungsintensitaet" targetCol="Nutzungsintensitaet"/>
+				<TransferTableColumn sourceCol="GewichtungIService" targetCol="GewichtungIService"/>
+				<TransferTableColumn sourceCol="GewichtungHardware" targetCol="GewichtungHardware"/>
+				<TransferTableColumn sourceCol="Objecttype" targetCol="Objecttype"/>
+				<TransferTableColumn sourceCol="Objecttype2" targetCol="Objecttype2"/>
+				<TransferTableColumn sourceCol="Keydate" targetCol="Keydate"/>
+				<TransferTableColumn sourceCol="Keynumber" targetCol="Keynumber"/>
+				<TransferTableColumn sourceCol="Speicherplatz" targetCol="Speicherplatz"/>
+				<TransferTableColumn sourceCol="Speicherplatz_Einheit" targetCol="Speicherplatz_Einheit"/>
+				<TransferTableColumn sourceCol="Auslaufdatum" targetCol="Auslaufdatum"/>
+				<TransferTableColumn sourceCol="MsgId_Verantwortlicher" targetCol="MsgId_Verantwortlicher"/>
+				<TransferTableColumn sourceCol="MsgId_Vertreter" targetCol="MsgId_Vertreter"/>
+				<TransferTableColumn sourceCol="Ot_Mandant" targetCol="ref_Mandant"/>
+				<TransferTableColumn sourceCol="Ref_Hardwaregruppe" targetCol="Ref_Hardwaregruppe"/>
+				<TransferTableColumn sourceCol="Bearbeitergruppe" targetCol="ref_Bearbeitergruppe"/>
+			</columnMap>
+			<mergeOptions merge="true" autoMergeColumns="true" targetTable="CMDB.Hardware" >
+				<mergeKey sourceCol="Key" targetCol="Key" />
+			</mergeOptions>
+		</TransferTableJob>
+
+	</transferBlock>
+
+	<transferBlock name="PIM-Transfer"
+									 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;pwd=geheim"
+									 conStringTargetType="IBM.Data.DB2" conStringTarget="Server=databaseserver:50000;Database=ITREP;UserID=db2admin;pwd=geheim">
+		<preCondition select="SELECT status from dbname.Ampel where Applikation='ORG'" condition="status:green" retryCount="10" retryDelay="30" />
+
+		<TransferTableJob sourceTable="dbname.ORG_EINHEITEN" targetTable="ZB_LIVE.EINGANG_ORG_Einheiten" deleteBefore="true" maxRecordDiff="30">
+			<columnMap>
+				<TransferTableColumn sourceCol="KEY" targetCol="KEY" />
+				<TransferTableColumn sourceCol="NAME" targetCol="NAME" />
+				<TransferTableColumn sourceCol="NAME_INTERN" targetCol="NAME_INTERN" />
+				<TransferTableColumn sourceCol="NAME_KUERZEL" targetCol="NAME_KUERZEL" />
+				<TransferTableColumn sourceCol="NAME_FULL" targetCol="NAME_FULL" />
+				<TransferTableColumn sourceCol="PARENT_KEY" targetCol="PARENT_KEY" />
+			</columnMap>
+		</TransferTableJob>
+	</transferBlock>
+	
+
+		<!-- TestBatch mit manuellen Queries und Spaltenmappings -->
+	<transferBlock name="CustomMapping" disableTransaction="true"
+									conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=dbname;UserID=db2admin;password=geheim"
+									conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=dbservername;Initial Catalog=VGenDatabase;Integrated Security=true">
+		<preCondition select="SELECT status from dbname.Ampel where Applikation='NAB'" condition="status:green" />
+
+		<TransferTableJob targetTable="VGen.Linienfunktionen" deleteBefore="true">
+			<customSourceSelect>
+				SELECT distinct linefunction, linefunction as lf2, linefunction as lf3
+					FROM dbname.METRO_Users
+				 WHERE status = 0 AND extern = '0' and linefunction is not null
+			</customSourceSelect>
+			<columnMap>
+				<TransferTableColumn sourceCol="linefunction" targetCol="Value" />
+				<TransferTableColumn sourceCol="lf2" targetCol="OptionDe" />
+				<TransferTableColumn sourceCol="lf3" targetCol="OptionEn" />
+			</columnMap>
+		</TransferTableJob>
+		
+	</transferBlock>
+
+
+	<transferBlock name="AccessToDB2CustomMapping-Transfer"
+conStringSourceType="System.Data.OleDb" conStringSource="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\D\Entwicklung\data studio workspace\ITREP lokal\data\PIM-Export-Ausfuehrungsverantwortliche.mdb;Persist Security Info=True"
+conStringTargetType="IBM.Data.DB2" conStringTarget="Server=databaseserver:50000;Database=dbname;UserID=db2admin;pwd=geheim">
+		<!-- <preCondition select="SELECT status from dbname.Ampel where Applikation='OT'" condition="status:green" retryCount="10" retryDelay="30" /> -->
+
+		<TransferTableJob sourceTable="Ausfuehrungsverantwortliche" targetTable="dbname.OT_AV" deleteBefore="true" maxRecordDiff="30">
+			<columnMap>
+				<TransferTableColumn sourceCol="Name" targetCol="NAME"/>
+				<TransferTableColumn sourceCol="UID" targetCol="UID"/>
+				<TransferTableColumn sourceCol="Kundenverantwortlicher" targetCol="KUNDENVERANTWORTLICHER"/>
+				<TransferTableColumn sourceCol="Kundenverantwortlicher_UID" targetCol="KUNDENVERANTWORTLICHER_UID"/>
+			</columnMap>
+		</TransferTableJob>
+
+	</transferBlock>
+
+	<!-- Oracle-Anbindung - benötigt ODAC Installation (Oracle-Webseite) -->
+	<transferBlock name="OracleTest" 
+								 conStringSourceType="System.Data.OleDb" conStringSource="Provider=OraOLEDB.Oracle;Data Source=(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=servername)(PORT=1521)))(CONNECT_DATA=(SID=PROSEWU)(SERVER=DEDICATED)));User Id=username;Password=geheim"
+								 conStringTargetType="IBM.Data.DB2" conStringTarget="Server=msas4249i:50000;Database=ITREP;UserID=db2admin;pwd=geheim">
+
+		<TransferTableJob sourceTable="it_sessions" targetTable="DB2ADMIN.EINGANG_PROSIS_SESSIONS" deleteBefore="true">
+			<!--<customSourceSelect>select mname, anzahl from it_sessions</customSourceSelect>-->
+			<columnMap>
+				<TransferTableColumn sourceCol="ANZAHL" targetCol="ANZAHL"/>
+				<TransferTableColumn sourceCol="mname" targetCol="MODUL_NAME"/>
+			</columnMap>
+		</TransferTableJob>
+
+	</transferBlock>
+
+	<!-- MySQL-Anbindung benötigt Installation MySQL-Connector  -->
+	<transferBlock name="MySqlTest" 
+								 conStringSourceType="MySql.Data.MySqlClient" 
+								 conStringSource="Server=mySQLDDB;Database=dbname;Uid=username;Pwd=Geheim"
+								 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		
+		<TransferTableJob sourceTable="`makemail`" targetTable="Test.MySqlMakeMail" deleteBefore="true">
+			<columnMap>
+				<TransferTableColumn sourceCol="von" targetCol="von"/>
+				<TransferTableColumn sourceCol="an" targetCol="an"/>
+			</columnMap>
+		</TransferTableJob>
+		
+	</transferBlock>
+
+	<!-- Test Update Existing -->
+	<transferBlock name="SyncLastMod_UpdateExisingTest"
+									 conStringSourceType="System.Data.SqlClient" conStringSource="Data Source=mssqlServer;Initial Catalog=dbname;Application Name=DataTransferHeatProdToDWH;Integrated Security=False;User=sa;Password=Geheim;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
+									 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+
+		<TransferTableJob sourceTable="dbo.Task" sourceWhere="Month(LastModDateTime) = 1 and Year(LastModDateTime) = 2018" targetTable="Test.task" identicalColumns="false" SyncByLastMod="true">
+			<syncByLastModOptions SyncByLastModField="LastModDateTime" SyncByLastModMode="UPDATE_EXISTING"/>
+			<columnMap>
+				<TransferTableColumn sourceCol="RecId" targetCol="RecId" isKey="true"/>
+				<TransferTableColumn sourceCol="LastModDateTime" targetCol="LastModDateTime"/>
+				<TransferTableColumn sourceCol="Subject" targetCol="Subject"/>
+			</columnMap>
+		</TransferTableJob>
+
+	</transferBlock>
+
+
+	<!-- Test APPEND -->
+	<transferBlock name="SyncLastMod_AppendTest"
+									 conStringSourceType="IBM.Data.DB2" conStringSource="Server=databaseserver:50000;Database=ITREP;UserID=db2admin;pwd=geheim"
+									 conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
+		
+		<TransferTableJob 
+										sourceTable="ZB_LIVE.Component_CV_ClientBackendVSA"
+										targetTable="Test.Component_CV_ClientBackendVSA"
+										identicalColumns="false" SyncByLastMod="true">
+			<syncByLastModOptions SyncByLastModField="Datum" SyncByLastModMode="APPEND_INCLUDE_MAXDATE"/>
+			<columnMap>
+				<TransferTableColumn sourceCol="Datum" targetCol="Datum" isKey="true"/>
+				<TransferTableColumn sourceCol="Name" targetCol="Name" isKey="true"/>
+				<TransferTableColumn sourceCol="Agent" targetCol="Agent" isKey="true"/>
+				<TransferTableColumn sourceCol="TotalSizeGB" targetCol="TotalSizeGB"/>
+			</columnMap>
+		</TransferTableJob>
+	</transferBlock>
+	
+	
+	<!-- Test Variablen-->
+	<transferBlock name="TestVariables"
+							 conStringSourceType="System.Data.SqlClient" conStringSource="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SQL_DWH;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
+							 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+		<TransferTableJob targetTable="C:\temp\var_test.csv" identicalColumns="true">
+			<variable name="v1" value="test" type="String"/>
+			<variable name="v2" value="125" type="Int64"/>
+			<variable name="v3" type="String" expression="v1 + ' ' + v2"/>
+			<variable name="v4" type="DateTime" selectContext="Source" selectStmt="SELECT Max(datum) as maxDatum from test.Component_CV_ClientBackendVSA"/>
+			<variable name="v5" type="String" value="123"/>
+			<variable name="v5" type="String" expression="v5 + ' ' + v4 + ' ' + v3"/>
+			<customSourceSelect>
+				<![CDATA[
+				SELECT Name, Datum, TotalSizeGB, ${{v1}} as VarCol, ${{v2}} as VarCol2, ${{v3}} as VarCol3, ${{v4}} as MaxDatum, ${{v5}} as Composite
+				FROM Test.Component_CV_ClientBackendVSA
+				]]>
+			</customSourceSelect>
+		</TransferTableJob>
+	</transferBlock>
+	
+</TransferJob>

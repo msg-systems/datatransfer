@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Topics>
+  <Topic id="ff8776d3-edde-4ed7-8d46-79bb652297e8" visible="True" isDefault="true" isSelected="true" title="Welcome to DataTransfer Help">
+    <HelpKeywords>
+      <HelpKeyword index="K" term="Welcome" />
+    </HelpKeywords>
+  </Topic>
+  <Topic id="62d6ea2d-3a9f-4dc5-9daa-e181509097d8" visible="False" isExpanded="true" title="Version History">
+    <HelpKeywords>
+      <HelpKeyword index="K" term="version, history" />
+    </HelpKeywords>
+    <Topic id="0b4f8219-10bf-4e4a-8810-f1dd77b0e410" visible="False" title="Version 1.0.0.0">
+      <HelpKeywords>
+        <HelpKeyword index="K" term="version, 1.0.0.0" />
+      </HelpKeywords>
+    </Topic>
+  </Topic>
+</Topics>
