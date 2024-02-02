@@ -25,7 +25,7 @@ Main features are
 - Very few dependencies to other libraries
 
 ### Quick Start
-- Decide which version to use (.Net 4.8 or 7.0) -> install respective runtime if not installed already
+- Decide which version to use (.Net 4.8 or 7.0) -> install respective .NET runtime if not installed already
 - Download binaries
 - Write your first job (see documentations, examples, xsd-file) - be sure to have a csv file on sourceTable-location with a header line and at least the columns col1, col2 and some data filled for every column
 ```
