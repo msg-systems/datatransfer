@@ -45,6 +45,16 @@ Main features are
 - to get full list of parameters: datatransfer.exe -? or datatransfer.exe -h
 - Customizing the source code is done with Visual Studio Community or higher Visual Studio versions 
 
+### Documentation
+- Documentation is currently only available in german
+- English usage documentation will presumably added in the wiki part of the repository
+
+### Planned features / enhancements
+- English documentation and tutorials
+- Adding ado providers by config, without recompile of the solution
+- Maybe combination of .net4 and .net5+ logic in a .Net Standard 2.0 dll for easier mantainability (currently 99,8% identical)
+- Authentication scenarios for http/s non-SQL (i.e. XML, JSON, CSV) data sources
+
 ### Dependencies
 Datatransfer .Net4 depends on 
 - DevLib.csv
