@@ -46,7 +46,7 @@ Main features are
 - Customizing the source code is done with Visual Studio Community or higher Visual Studio versions 
 
 ### Documentation
-- Documentation is currently only available in german
+- Documentation is currently only partly available in english (Documentation/content/en)
 - English usage documentation will presumably added in the wiki part of the repository
 
 ### Planned features / enhancements
