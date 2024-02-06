@@ -247,7 +247,11 @@
 												</xsd:attribute>
 												<xsd:attribute name="targetTable" type="xsd:string" use="required" >
 													<xsd:annotation>
-														<xsd:documentation> Der Name der Zieltabelle in der Ziel-Datenquelle </xsd:documentation>
+														<xsd:documentation>
+															Der Name des Ziels für den Merge in der Ziel-Datenquelle.
+															Abhängig von der Zieldatenquelle kann dies ein Tabellenname, ein Excel-Range oder auch ein Dateipfad für non-SQL sein.
+															Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann.
+														</xsd:documentation>
 													</xsd:annotation>
 												</xsd:attribute>
 											</xsd:complexType>
@@ -255,8 +259,10 @@
 									</xsd:sequence>
 									<xsd:attribute name="sourceTable" type="xsd:string" use="optional" >
 										<xsd:annotation>
-											<xsd:documentation> Der Name der Tabelle in der Quell-Datenquelle die vom Job übertragen werden soll. 
-											Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann</xsd:documentation>
+											<xsd:documentation>
+												Der Name der Tabelle in der Quell-Datenquelle die vom Job übertragen werden soll.
+												Abhängig von der Zieldatenquelle kann dies ein Tabellenname, ein Excel-Range oder auch ein Dateipfad für non-SQL sein.
+												Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann.</xsd:documentation>
 										</xsd:annotation>
 									</xsd:attribute>
 									<xsd:attribute name="sourceWhere" type="xsd:string" use="optional" >
@@ -270,7 +276,8 @@
 										<xsd:annotation>
 											<xsd:documentation>
 												Der Name der Tabelle in der Ziel-Datenquelle die vom Job befüllt werden soll.
-												Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann
+												Abhängig von der Zieldatenquelle kann dies ein Tabellenname, ein Excel-Range oder auch ein Dateipfad für non-SQL sein.
+												Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann.
 											</xsd:documentation>
 										</xsd:annotation>
 									</xsd:attribute>
@@ -282,7 +289,7 @@
 									<xsd:attribute name="deleteWhere" type="xsd:string" use="optional" >
 										<xsd:annotation>
 											<xsd:documentation>
-												Ein Where-Teil für die Delete-Query (ohne Schlüsselwort WHERE) in der Syntax des Source-Providers.
+												Ein Where-Teil für die Delete-Query (ohne Schlüsselwort WHERE) in der Syntax des target-Providers.
 												Nur sinnvoll wenn auch das Attribut deleteBefore auf true steht.
 											</xsd:documentation>
 										</xsd:annotation>
@@ -290,13 +297,13 @@
 									<xsd:attribute name="identicalColumns" type="xsd:boolean" use="optional" >
 										<xsd:annotation>
 											<xsd:documentation>Gibt an ob für die Übertragung die identischen Spalten wie in der Quelle-Datenquell-Tabelle 
-											verwendet werden sollen. Default false.</xsd:documentation>
+											verwendet werden sollen. Falls benutzt ist kein ColumnMap notwendig. Default false.</xsd:documentation>
 										</xsd:annotation>
 									</xsd:attribute>
 									<xsd:attribute name="identicalColumnsSource" type="DBContext" use="optional" >
 										<xsd:annotation>
 											<xsd:documentation>
-												Gibt für die identischee Spaltenübertragung an ob als Basis für die Spaltenwerte die als identisch angesehen werden sollen, die Quelle oder das Ziel gilt.
+												Gibt für die identischee Spaltenübertragung an ob als Basis für die Spaltennamen die als identisch angesehen werden sollen, die Quelle oder das Ziel gilt.
                         Standard ist das Ziel, wenn nichts angegeben wird.
 											</xsd:documentation>
 										</xsd:annotation>
@@ -320,7 +327,7 @@
 									<xsd:attribute name="targetSyncWhere" type="xsd:string" use="optional" >
 										<xsd:annotation>
 											<xsd:documentation>
-												Gibt eine Teilmenge der Zieltabelle an die für einen Sync verwendet werden soll (ohne WHERE). Macht nur Sinn wenn sync = "true"
+												Gibt eine Teilmenge der Zieltabelle an die für einen Sync verwendet werden soll (ohne WHERE) in der Syntax des Ziel-Providers. Macht nur Sinn wenn sync = "true"
 											</xsd:documentation>
 										</xsd:annotation>
 									</xsd:attribute>
@@ -330,8 +337,8 @@
 												Gibt an das ein Sync anhand des LastMod-Datums durchgeführt werden soll. Dies heißt technisch das 
 												1. Das LastMod-Datum im Ziel ermittelt wird
 												2. in der Quelle alles mit > diesem Datum ermittelt wird
-												3. im Ziel alles gelöscht wird, was in der Quelle gefunden wurde
-												4. Stur im Ziel eingefügt wird
+												3. im Ziel alles gelöscht/aktualisiert wird, was in der Quelle gefunden wurde je nach Syncmode
+												4. Einfügung der fehlenden Datensätze
 												Default false
 											</xsd:documentation>
 										</xsd:annotation>
@@ -341,12 +348,12 @@
 						</xsd:sequence>
 						<xsd:attribute name="name" type="xsd:string" use="required" >
 							<xsd:annotation>
-								<xsd:documentation>Gibt den Namen des Transferblocks an, der im Code für den Aufruf verwendet werden kann und auch im Logging als Erkennungsmerkmal dient</xsd:documentation>
+								<xsd:documentation>Gibt den Namen des Transferblocks an, der im Code oder im Kommandozeilentool für den Aufruf verwendet werden kann und auch im Logging als Erkennungsmerkmal dient</xsd:documentation>
 							</xsd:annotation>
 						</xsd:attribute>
 						<xsd:attribute name="conStringSourceType" type="xsd:string" use="required" >
 							<xsd:annotation>
-								<xsd:documentation>Der ADO-Treiber der für die Quell-Datenquelle verwendet werden soll</xsd:documentation>
+								<xsd:documentation>Der ADO-/custom nonSQL-Treiber der für die Quell-Datenquelle verwendet werden soll</xsd:documentation>
 							</xsd:annotation>
 						</xsd:attribute>
 						<xsd:attribute name="conStringSource" type="xsd:string" use="required" >
@@ -356,7 +363,7 @@
 						</xsd:attribute>
 						<xsd:attribute name="conStringTargetType" type="xsd:string" use="required" >
 							<xsd:annotation>
-								<xsd:documentation>Der ADO-Treiber der für die Ziel-Datenquelle verwendet werden soll</xsd:documentation>
+								<xsd:documentation>Der ADO-/custom nonSQL-Treiber der für die Ziel-Datenquelle verwendet werden soll</xsd:documentation>
 							</xsd:annotation>
 						</xsd:attribute>
 						<xsd:attribute name="conStringTarget" type="xsd:string" use="required" >
@@ -367,14 +374,17 @@
 						<xsd:attribute name="targetMaxBatchSize" type="xsd:integer" use="optional" >
 							<xsd:annotation>
 								<xsd:documentation>
-									Gibt die maximale Batchsize für die Fill-Operation der TargetTable an - Diese muss evt. niedriger gesetzt werden, falls es zu Timeouts kommt.
+									Gibt die maximale Batchsize für die Fill-Operation der TargetTable an. 
+									Diese muss evt. niedriger gesetzt werden, falls es etwa zu Timeouts oder max. SQL-Länge-Fehlern kommt oder die Zieldatenquelle dies nicht unterstützt (z.B. 1 bei Access Zwang).
 									0 = Maximum, alles andere = reale Batchsize, Fehlende Angabe = Maximum
 								</xsd:documentation>
 							</xsd:annotation>
 						</xsd:attribute>
 						<xsd:attribute name="disableTransaction" type="xsd:boolean" use="optional" >
 							<xsd:annotation>
-								<xsd:documentation>Ermöglicht das Abschalten der transaktionalen Verarbeitung wodurch Änderungen auch bei Fehlern erhalten bleiben. Default false.</xsd:documentation>
+								<xsd:documentation>Ermöglicht das Abschalten der transaktionalen Verarbeitung wodurch Änderungen der Verarbeitung auch nach Fehlern erhalten bleiben. 
+								Manchmal ist dies notwendig, wenn die Zieldatenquelle keine Transaktionen unterstützt und dies nicht explizit in der Implementierung des Tools definiert ist.
+								Default false.</xsd:documentation>
 							</xsd:annotation>
 						</xsd:attribute>
 						<xsd:attribute name="transactionIsolationLevel" use="optional" >
@@ -412,7 +422,7 @@
 		</xsd:attribute>
 		<xsd:attribute name="select" type="xsd:string" use="required" >
 			<xsd:annotation>
-				<xsd:documentation> Das zu verwendende Select zur Datenüberprüfung in der Quell-Datenquelle </xsd:documentation>
+				<xsd:documentation> Das zu verwendende Select zur Datenüberprüfung in der angegebenen Datenquelle </xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="condition" type="xsd:string" use="required" >
@@ -439,7 +449,7 @@
 	<xsd:complexType name="ColMapType">
 		<xsd:attribute name="sourceCol" type="xsd:string" use="required" >
 			<xsd:annotation>
-				<xsd:documentation>Die Spalte wie sie in der Quelle heißt</xsd:documentation>
+				<xsd:documentation>Die Spalte wie sie in der Quelle heißt oder ein Ausdruck wie er in der Source-Datenquelle gültig ist</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 		<xsd:attribute name="targetCol" type="xsd:string" use="required" >
@@ -476,7 +486,7 @@
 		<xsd:attribute name="SyncByLastModField" type="xsd:string" use="required" >
 			<xsd:annotation>
 				<xsd:documentation>
-					Gibt den Feldnamen für einen 'SyncByLastMod'-Sync an. Dies ist in dem Falle zwingend anzugeben und entspricht dem Namen der Spalte in dem sich das LastMod-Datum befindet.
+					Gibt den Datums-Feldnamen für einen 'SyncByLastMod'-Sync an. Dies ist in dem Falle zwingend anzugeben und entspricht dem Namen der Spalte in dem sich das LastMod-Datum befindet.
 					Annahme ist das dieser Name sowohl in Quelle und Ziel identisch ist.
 					Default Leer
 				</xsd:documentation>
@@ -582,7 +592,8 @@
 		<xsd:attribute name="value" use="optional" type="xs:string">
 			<xsd:annotation>
 				<xsd:documentation>
-					Ein fixer nicht interpretierter Wert
+					Ein fixer nicht interpretierter Wert. Konvertierungen in den Zieltyp werden nach .NET Standard durchgeführt.
+					Exklusiv gegenüber selectStmt and expression Attribut.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
@@ -590,8 +601,9 @@
 		<xsd:attribute name="selectStmt" use="optional" type="xs:string">
 			<xsd:annotation>
 				<xsd:documentation>
-					Ermittlung eines Wertes mittels Select-Statment - Als Ergebnis wird die erste Zeile - erste Spalte verwendet. 
-					Das Attribut selectContext muss angegeben sein
+					Ermittlung eines Wertes mittels Select-Statment - Als Ergebnis wird die erste Zeile - erste Spalte verwendet.
+					Das Attribut selectContext muss angegeben sein.
+					Exklusiv gegenüber value and expression Attribut.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>

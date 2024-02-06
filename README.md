@@ -40,6 +40,8 @@ Main features are
     </transferBlock>
   </TransferJob>
 ```
+  - An editor with XSD support is helpful to get context help on writing the job file, i.e. Visual Studio code with plugin „XML“ from „Red Hat“ https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml 
+  - Examples of connection strings can be found for instance at https://www.connectionstrings.com/ 
 - Start/Test the tool: datatransfer.exe -f [fullpath to your job.xml]
 - to get more debug infos: datatransfer.exe -f [fullpath to your job.xml] -d
 - to get full list of parameters: datatransfer.exe -? or datatransfer.exe -h
@@ -47,7 +49,8 @@ Main features are
 
 ### Documentation
 - Documentation is currently only partly available in english (Documentation/content/en)
-- English usage documentation will presumably added in the wiki part of the repository
+  - english/german job.xsd can be found there
+- English usage/toturial documentation will presumably added in the wiki part of the repository
 
 ### Planned features / enhancements
 - English documentation and tutorials
@@ -92,7 +95,7 @@ You can customize the code to fulfill your needs.
     - implement own methods for deletion deleteTableRows
     - implement own methods for merge
     - implement getParamName for custom parameter name format for your data source
-    - just look into the existing implementations
+    - just look into the existing implementations for examples
 - to implement custom logic for non-ADO.Net provider (example XMLInterface.cs)
   - Create a class under Database\Custom which is inheriting from CustomInterfaceBase and define the properties/events for
     - define drivername, transactionality, batchsize ... (see current implementations)
