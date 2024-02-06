@@ -48,9 +48,10 @@ Main features are
 - Customizing the source code is done with Visual Studio Community or higher Visual Studio versions 
 
 ### Documentation
-- Documentation is currently only partly available in english (Documentation/content/en)
-  - english/german job.xsd can be found there
-- English usage/toturial documentation will presumably added in the wiki part of the repository
+- Documentation can be found in the documentation folder
+  - Content contains user documentation, images and xsd-files in english and german
+  - Help contains german code documentation (classes, methods, parameters, ...)
+- [documentation pages](Documentation/Content/docIndex.md) in english can be found [here](Documentation/Content/docIndex.md)
 
 ### Planned features / enhancements
 - English documentation and tutorials
@@ -89,7 +90,7 @@ You can customize the code to fulfill your needs.
   - .Net 7 - add a line in program.cs Main method like : DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance); and compile it
 - to implement custom logic for a ADO.Net provider (example MSSQLInterface.cs)
   - Create a class under Database which is inheriting from DBInterface and define the properties supportsDataAdapterCommands, supportsParameter and supportsBatchCommands (in doubt just try)
-  - reference this class in DBInterface.cs method getInterface by adding a new case like
+  - reference this class in DBInterface.cs method getInterface by adding a new case like ' case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break; '
   - other features which can be added in your class
     - add methods for createDataAdapter, createDBCommandBuilder if the ADO.Net-Factory class doesn´t support this
     - implement own methods for deletion deleteTableRows
@@ -103,7 +104,7 @@ You can customize the code to fulfill your needs.
     - define handler for writing (if needed): initFillContext, commitFillContext, rollbackFillContext, insertHandler and if needed updateHandler and deleteHandler
     - define if SQL syntax is used and complex from expressions (like http)
     - overwrite base methods if needed like deleteTableRows 
-  - reference this class in DBInterface.cs method getInterface by adding a new case like
+  - reference this class in DBInterface.cs method getInterface by adding a new case like ' case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break; '
 - to implement your own DSL for your own provider (example LDAPInterface.cs class ldapDSL)
   - create a valueProvider inherited from DSLValueProvider which implements how to resolve identifier to values
   - create a functionHandler inherited from DSLFunctionHanlder which implements how to execute functions
