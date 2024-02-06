@@ -80,23 +80,30 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Content" />
+    <Folder Include="Content\de" />
+    <Folder Include="Content\en" />
     <Folder Include="Content\VersionHistory" />
     <Folder Include="Help\" />
     <Folder Include="icons" />
     <Folder Include="media" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Ablaufplan.pdf" />
-    <Content Include="Content\Ablaufplan.vsd" />
-    <Content Include="Content\DataTransfer_UML_ClassDiagram.pdf" />
-    <Content Include="Content\DataTransfer_UML_ClassDiagram.vsdx">
-      <ImageId>DataTransfer_UML_ClassDiagram</ImageId>
-      <AlternateText>Data Transfer UML Class Diagram</AlternateText>
-    </Content>
-    <Content Include="Content\Datenquellen.txt" />
-    <Content Include="Content\Domain specific language definition.docx" />
-    <Content Include="Content\Struktur Formatjob.pdf" />
-    <Content Include="Content\job.xsd" />
+    <Content Include="Content\de\Datenquellen.txt" />
+    <None Include="Content\de\Ablaufplan.pdf" />
+    <None Include="Content\de\Ablaufplan.vsd" />
+    <None Include="Content\de\DataTransfer_UML_ClassDiagram.pdf" />
+    <None Include="Content\de\DataTransfer_UML_ClassDiagram.vsdx" />
+    <None Include="Content\de\Domain specific language definition.docx" />
+    <None Include="Content\de\Domain specific language definition.pdf" />
+    <None Include="Content\de\job.xsd" />
+    <None Include="Content\de\Struktur Formatjob.pdf" />
+    <None Include="Content\en\Domain specific language definition.docx" />
+    <None Include="Content\en\Domain specific language definition.pdf" />
+    <None Include="Content\en\job.xsd" />
+    <None Include="Content\en\Workflow.pdf" />
+    <None Include="Content\en\Workflow.vsd" />
+    <None Include="Content\en\DataTransfer_UML_ClassDiagram.pdf" />
+    <None Include="Content\en\DataTransfer_UML_ClassDiagram.vsdx" />
     <None Include="Content\VersionHistory\v1.0.0.0.aml" />
     <None Include="Content\VersionHistory\VersionHistory.aml" />
     <None Include="Content\Welcome.aml" />
@@ -106,6 +113,7 @@
     <ContentLayout Include="ContentLayout.content" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\en\Datenquellen.txt" />
     <Content Include="icons\Help.png" />
   </ItemGroup>
   <!-- Import the common build targets during NuGet restore because before the packages are being installed, $(SHFBROOT) is not set yet -->

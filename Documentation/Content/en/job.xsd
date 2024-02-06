@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="unqualified">
+	<xsd:element name="TransferJob">
+		<xsd:annotation>
+			<xsd:documentation> Root element of a TransferJob </xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="settings" maxOccurs="1" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation> Global settings for this TransferJob like mail settings </xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="mailSettings" maxOccurs="1" minOccurs="0">
+								<xsd:annotation>
+									<xsd:documentation>Settings for mailing on error</xsd:documentation>
+								</xsd:annotation>
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="sendTo" minOccurs="1" maxOccurs="unbounded" type="xs:string">
+											<xsd:annotation>
+												<xsd:documentation>Recipient for mail sending</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="message" minOccurs="0" maxOccurs="1" type="xs:string">
+											<xsd:annotation>
+												<xsd:documentation>Message used when sending mail (CDATA) - uses a placeholder &lt;message&gt; for the message from the application itself </xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+									</xsd:sequence>
+									<xsd:attribute name="sendMailOnErrorLevel" use="required" >
+										<xsd:annotation>
+											<xsd:documentation> Specifies whether a mail should be sent in the event of an error during processing, default false </xsd:documentation>
+										</xsd:annotation>
+										<xsd:simpleType>
+											<xsd:restriction base="xs:string">
+													<xsd:enumeration value="Critical"/>
+													<xsd:enumeration value="Error"/>
+													<xsd:enumeration value="Warning"/>
+													<xsd:enumeration value="Information"/>
+													<xsd:enumeration value="Verbose"/>
+													<xsd:enumeration value="Transfer"/>
+											</xsd:restriction>
+										</xsd:simpleType>
+										
+									</xsd:attribute>
+									<xsd:attribute name="smtpServer" use="required" type="xs:string">
+										<xsd:annotation>
+											<xsd:documentation> The SMTP server to use </xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="sendFrom" use="required" type="xs:string">
+										<xsd:annotation>
+											<xsd:documentation> The sender address to use </xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="subject" use="optional" type="xs:string">
+										<xsd:annotation>
+											<xsd:documentation> The subject of the error message </xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+						<xsd:attribute name="writeLogToFile" use="optional" type="xs:string">
+							<xsd:annotation>
+								<xsd:documentation> Specifies the file name for the log to be used including subpaths - works with placeholders. 
+								for date values that must be written in [] e.g. [dd.MM.yyyy]</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+				
+				<xsd:element maxOccurs="unbounded" name="transferBlock">
+					<xsd:annotation>
+						<xsd:documentation>
+							A transfer block is a logical unit for data transfer. Each transfer block defines a target and a source connection as well 
+							as general information on processing. Transfer blocks also control the degree of parallelization of the overall job. 
+							Each block can be executed in a separate thread, which can greatly increase the processing speed if there are several blocks. 
+							However, each block also establishes its own data source connections. 
+							A block also forms the area of a transaction, whereby transactions with explicit individual calls of sub-jobs can also only apply to these. 
+							If an error occurs during the processing of the block, the transaction is rolled back.
+						</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="preCondition" maxOccurs="unbounded" minOccurs="0" type="conditionType">
+								<xsd:annotation>
+									<xsd:documentation>
+										Defines a condition that is to be checked before processing in the source data source. 
+										The condition is only checked if the transfer block is processed as a whole and not explicitly an individual job. 
+										The condition is also only checked at the start of the block and not individually for each job. 
+										If it is not fulfilled, it can be checked repeatedly at intervals until it is valid. If the condition is still 
+										not fulfilled after a defined number of attempts, processing of the block is aborted.
+									</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element maxOccurs="unbounded" name="TransferTableJob">
+								<xsd:annotation>
+									<xsd:documentation>
+										Ein Übertragungsjob eines Transferblocks der genau für einen Tabellentransfer aus der Quell-Datenquelle zur Ziel-Datenquelle verantwortlich ist.
+										Definiert wie die Daten in der Quell-Datenquelle ermittelt werden, wie Spalten angepasst werden müssen und wie die Zieltabelle heißt.
+										Ermöglicht zudem eine Definition für einen Merge innerhalb der Zieldatenquelle in eine weitere Tabelle.
+										Ein TransferTableJob kann auch den Kontext einer Transaktion bilden, wenn er explizit im Code angestoßen wird.
+									</xsd:documentation>
+								</xsd:annotation>
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element minOccurs="0" maxOccurs="1" name="syncOptions" type="syncOptions" >
+											<xsd:annotation>
+												<xsd:documentation>
+													Sync-Optionen - nur sinnvoll wenn Attribut sync = true. Geben an welche CRUD-Operatoren erlaubt sind
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="1" name="syncByLastModOptions" type="syncByLastModOptions" >
+											<xsd:annotation>
+												<xsd:documentation>
+												 SyncByLastMod-Optionen - nur sinnvoll wenn Attribut syncByLastMod = true. 
+												 Gibt an welches Feld und welcher Modus für den Datumsabgleich zum Tragen kommen sollen
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+
+										<xsd:element minOccurs="0" maxOccurs="unbounded" name="variable" type="variable" >
+											<xsd:annotation>
+												<xsd:documentation>
+													Hier können Variablen auf verschiedene Weise deklariert/initialisiert und neu berechnet werden.
+													Die Variablen werden mit ${{VarName}} referenziert.
+													Ausführung der Initialisierung in der angegebenen Reihenfolge.
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										
+										<xsd:element minOccurs="0" maxOccurs="1" name="customSourceSelect" type="xsd:string" >
+											<xsd:annotation>
+												<xsd:documentation>
+													Hier kann man ein eigenes SELECT-Statement auf der Datenquelle definieren mit der die Daten abgefragt werden.
+													Dies ist eine Alternative zur Angabe der Quelltabelle im Attribut sourceTable.
+													Gibt man diesen Wert an wird das Attribut sourceTable ignoriert!
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="unbounded" name="preCondition" type="conditionType" >
+											<xsd:annotation>
+												<xsd:documentation>
+													Definiert eine Bedingung die vor der Verarbeitung in der Quell-Datenquelle geprüft werden soll.
+													Die Bedingung wird immer geprüft, also bei expliziter Verarbeitung des Jobs oder auch bei Verarbeitung des kompletten Transferblocks.
+													Wird diese nicht erfüllt kann sie wiederholt in Intervallen geprüft werden bis sie gültig ist.
+													Wird die Bedingung nach einer definierter Anzahl Versuche weiterhin nicht erfüllt, bricht die Verarbeitung des Blocks ab.
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="unbounded" name="preStatement" type="xsd:string" >
+											<xsd:annotation>
+												<xsd:documentation>Definition von beliebig vielen SQL-Statements die auf der Ziel-Datenquelle vor Verarbeitung 
+												des Jobs durchgeführt werden sollen </xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="1" name="customKeys">
+											<xsd:annotation>
+												<xsd:documentation>
+													Definiert Keys für einen Sync - Ist das Attribut Sync = true kann dies Pflicht sein wenn kein ColumnMap verwendet wird (etwa customSelect)
+												</xsd:documentation>
+											</xsd:annotation>
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element minOccurs="1" maxOccurs="unbounded" name="TransferTableColumn" type="ColMapType">
+														<xsd:annotation>
+															<xsd:documentation>
+																Die Key-Spalten für den Sync
+															</xsd:documentation>
+														</xsd:annotation>
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="1" name="columnMap">
+											<xsd:annotation>
+												<xsd:documentation>Definiert ein Spaltenmapping zwischen der Quell-Datenquellen-Tabelle und der
+												Ziel-Datenquellen-Tabelle. Wenn das Jobattribut identicalColumns true ist, wird die Zuordnung ignoriert.
+												Wird das Attribut sync = true gesetzt muss hier mindestens 1 Spalte als isKey = true markiert werden. </xsd:documentation>
+											</xsd:annotation>
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element minOccurs="1" maxOccurs="unbounded" name="TransferTableColumn" type="ColMapType">
+														<xsd:annotation>
+															<xsd:documentation>
+																Das Mapping einer konkreten Spalte
+															</xsd:documentation>
+														</xsd:annotation>			
+													</xsd:element>
+												</xsd:sequence>
+											</xsd:complexType>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="unbounded" name="postStatement" type="xsd:string" >
+											<xsd:annotation>
+												<xsd:documentation>
+													Definition von beliebig vielen SQL-Statements die auf der Ziel-Datenquelle nach dem Transfer aber vor 
+													einem möglichen Merge durchgeführt werden
+												</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element minOccurs="0" maxOccurs="1" name="mergeOptions">
+											<xsd:annotation>
+												<xsd:documentation>
+													Definition für einen möglichen nachgelagerten Merge in eine andere Tabelle - innerhalb der Ziel-Datenquelle
+												</xsd:documentation>
+											</xsd:annotation>
+											<xsd:complexType>
+												<xsd:sequence>
+													<xsd:element name="mergeKey" minOccurs="0" maxOccurs="unbounded" type="ColMapType">
+														<xsd:annotation>
+															<xsd:documentation>
+																Definition beliebig vieler Merge-Spalten anhand derer die Datengleichheit in der übertragenen Datenmenge und
+																der definierten Mergetabelle ermittelt wird
+															</xsd:documentation>
+														</xsd:annotation>
+													</xsd:element>
+													<xsd:element minOccurs="0" maxOccurs="1" name="columnMap">
+														<xsd:annotation>
+															<xsd:documentation>
+																Ein Spaltenmapping für die Datenübernahme beim Merge. Wird ignoriert wenn das Attribut autoMergeColumns true ist.
+															</xsd:documentation>
+														</xsd:annotation>
+														<xsd:complexType>
+															<xsd:sequence>
+																<xsd:element minOccurs="1" maxOccurs="unbounded" name="TransferTableColumn" type="ColMapType">
+																	<xsd:annotation>
+																		<xsd:documentation> Mapping für eine konkrete Spalte </xsd:documentation>
+																	</xsd:annotation>			
+																</xsd:element>
+															</xsd:sequence>
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:sequence>
+												<xsd:attribute name="merge" type="xsd:boolean" use="required" >
+													<xsd:annotation>
+														<xsd:documentation> Gibt an ob ein merge erwünscht ist. default false </xsd:documentation>
+													</xsd:annotation>
+												</xsd:attribute>
+												<xsd:attribute name="autoMergeColumns" type="xsd:boolean" use="optional" >
+													<xsd:annotation>
+														<xsd:documentation> Gibt an ob einfach alle Spalten mit identischem Namen in die Zieltabelle übertragen werden sollen. default false </xsd:documentation>
+													</xsd:annotation>
+												</xsd:attribute>
+												<xsd:attribute name="targetTable" type="xsd:string" use="required" >
+													<xsd:annotation>
+														<xsd:documentation> Der Name der Zieltabelle in der Ziel-Datenquelle </xsd:documentation>
+													</xsd:annotation>
+												</xsd:attribute>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:sequence>
+									<xsd:attribute name="sourceTable" type="xsd:string" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation> Der Name der Tabelle in der Quell-Datenquelle die vom Job übertragen werden soll. 
+											Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="sourceWhere" type="xsd:string" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Ein Where-Teil für die Source-Query (ohne Schlüsselwort WHERE) in der Syntax des Source-Providers
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="targetTable" type="xsd:string" use="required" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Der Name der Tabelle in der Ziel-Datenquelle die vom Job befüllt werden soll.
+												Je nach Datenquellenart muss die Syntax des Tabellennamens so angepasst werden das sie nach einem FROM im SQL folgen kann
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="deleteBefore" type="xsd:boolean" use="optional">
+										<xsd:annotation>
+											<xsd:documentation> Gibt an ob die Daten der Zieltabelle in der Ziel-Datenquelle vor Befüllung gelöscht werden soll. Default false</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="deleteWhere" type="xsd:string" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Ein Where-Teil für die Delete-Query (ohne Schlüsselwort WHERE) in der Syntax des Source-Providers.
+												Nur sinnvoll wenn auch das Attribut deleteBefore auf true steht.
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="identicalColumns" type="xsd:boolean" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>Gibt an ob für die Übertragung die identischen Spalten wie in der Quelle-Datenquell-Tabelle 
+											verwendet werden sollen. Default false.</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="identicalColumnsSource" type="DBContext" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Gibt für die identischee Spaltenübertragung an ob als Basis für die Spaltenwerte die als identisch angesehen werden sollen, die Quelle oder das Ziel gilt.
+                        Standard ist das Ziel, wenn nichts angegeben wird.
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="maxRecordDiff" type="xsd:float" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>Gibt die maximale negative Abweichung in Prozent an, die die Quell-Tabelle zur Zieltabelle haben darf.
+											Ein Wert von 0 wird ignoriert. Sollte wirklich kein Verlust erlaubt sein kann 0.000001 angegeben werden.
+											Bei einem Wert von 50 wird der Job abgebrochen wenn in der Quelltabelle 50% weniger Datensätze enthalten sind als in der Zieltabelle.
+											Default ist 0.</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="sync" type="xsd:boolean" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Gibt an ob ein echter Sync durchgeführt wird oder ob einfach nur mit Insert Daten reingeladen werden - ohne Prüfung.
+												Default false
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="targetSyncWhere" type="xsd:string" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Gibt eine Teilmenge der Zieltabelle an die für einen Sync verwendet werden soll (ohne WHERE). Macht nur Sinn wenn sync = "true"
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+									<xsd:attribute name="SyncByLastMod" type="xsd:boolean" use="optional" >
+										<xsd:annotation>
+											<xsd:documentation>
+												Gibt an das ein Sync anhand des LastMod-Datums durchgeführt werden soll. Dies heißt technisch das 
+												1. Das LastMod-Datum im Ziel ermittelt wird
+												2. in der Quelle alles mit > diesem Datum ermittelt wird
+												3. im Ziel alles gelöscht wird, was in der Quelle gefunden wurde
+												4. Stur im Ziel eingefügt wird
+												Default false
+											</xsd:documentation>
+										</xsd:annotation>
+									</xsd:attribute>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+						<xsd:attribute name="name" type="xsd:string" use="required" >
+							<xsd:annotation>
+								<xsd:documentation>Gibt den Namen des Transferblocks an, der im Code für den Aufruf verwendet werden kann und auch im Logging als Erkennungsmerkmal dient</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="conStringSourceType" type="xsd:string" use="required" >
+							<xsd:annotation>
+								<xsd:documentation>Der ADO-Treiber der für die Quell-Datenquelle verwendet werden soll</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="conStringSource" type="xsd:string" use="required" >
+							<xsd:annotation>
+								<xsd:documentation>Der Connection-String der für die Quell-Datenquelle verwendet werden soll</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="conStringTargetType" type="xsd:string" use="required" >
+							<xsd:annotation>
+								<xsd:documentation>Der ADO-Treiber der für die Ziel-Datenquelle verwendet werden soll</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="conStringTarget" type="xsd:string" use="required" >
+							<xsd:annotation>
+								<xsd:documentation>Der Connection-String der für die Ziel-Datenquelle verwendet werden soll</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="targetMaxBatchSize" type="xsd:integer" use="optional" >
+							<xsd:annotation>
+								<xsd:documentation>
+									Gibt die maximale Batchsize für die Fill-Operation der TargetTable an - Diese muss evt. niedriger gesetzt werden, falls es zu Timeouts kommt.
+									0 = Maximum, alles andere = reale Batchsize, Fehlende Angabe = Maximum
+								</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="disableTransaction" type="xsd:boolean" use="optional" >
+							<xsd:annotation>
+								<xsd:documentation>Ermöglicht das Abschalten der transaktionalen Verarbeitung wodurch Änderungen auch bei Fehlern erhalten bleiben. Default false.</xsd:documentation>
+							</xsd:annotation>
+						</xsd:attribute>
+						<xsd:attribute name="transactionIsolationLevel" use="optional" >
+							<xsd:annotation>
+								<xsd:documentation>Mit der Eigenschaft kann das IsolationLevel der Transaktion (disableTransaction nicht gesetzt) explizit festgelegt werden - Default ist Serializable</xsd:documentation>
+							</xsd:annotation>
+							<xsd:simpleType>
+								<xsd:restriction base="xs:string">
+									<xsd:enumeration value="ReadCommitted"/>
+									<xsd:enumeration value="ReadUncommitted"/>
+									<xsd:enumeration value="RepeatableRead"/>
+									<xsd:enumeration value="Serializable"/>
+									<xsd:enumeration value="Snapshot"/>
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="DBContext">
+		<xsd:restriction base="xs:string">
+			<xsd:enumeration value="Source"></xsd:enumeration>
+			<xsd:enumeration value="Target"></xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:complexType name="conditionType">
+		<xsd:attribute name="checkOn" type="DBContext" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation> Gibt an wo die Bedingung geprüft werden soll, auf target oder auf source-Seite </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="select" type="xsd:string" use="required" >
+			<xsd:annotation>
+				<xsd:documentation> Das zu verwendende Select zur Datenüberprüfung in der Quell-Datenquelle </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="condition" type="xsd:string" use="required" >
+			<xsd:annotation>
+				<xsd:documentation>
+					Die Bedingung die geprüft werden soll im Format
+					[[Select-Spaltenname]:[Erwarteter Wert]]* wobei mehrere Bedingungen mit ; getrennt werden
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="retryCount" type="xsd:int" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation> Angabe wie oft bei Fehlschlag der Bedingung die Bedingung erneut geprüft werden soll bevor der Block abbricht </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="retryDelay" type="xsd:int" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation> Angabe wieviele Sekunden zwischen fehlgeschlagenen Bedingungsprüfungen gewartet werden soll </xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+
+	<xsd:complexType name="ColMapType">
+		<xsd:attribute name="sourceCol" type="xsd:string" use="required" >
+			<xsd:annotation>
+				<xsd:documentation>Die Spalte wie sie in der Quelle heißt</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="targetCol" type="xsd:string" use="required" >
+			<xsd:annotation>
+				<xsd:documentation>Die Spalte wie sie am Ziel heißt</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="isKey" type="xsd:boolean" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation>Gibt an ob die Spalte bei einem Sync als Key-Spalte verwendet wird</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="syncOptions">
+		<xsd:attribute name="noUpdates" type="xsd:boolean" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation>Gibt an ob Updates im Sync unterlassen werden - default false</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="noDeletes" type="xsd:boolean" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation>Gibt an ob Deletes im Sync unterlassen werden - default false</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="noInserts" type="xsd:boolean" use="optional" >
+			<xsd:annotation>
+				<xsd:documentation>Gibt an ob Inserts im Sync unterlassen werden - default false</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="syncByLastModOptions">
+		<xsd:attribute name="SyncByLastModField" type="xsd:string" use="required" >
+			<xsd:annotation>
+				<xsd:documentation>
+					Gibt den Feldnamen für einen 'SyncByLastMod'-Sync an. Dies ist in dem Falle zwingend anzugeben und entspricht dem Namen der Spalte in dem sich das LastMod-Datum befindet.
+					Annahme ist das dieser Name sowohl in Quelle und Ziel identisch ist.
+					Default Leer
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="SyncByLastModMode" use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+						Gibt an, wie das Datum beim Sync verwendet werden soll. Die Modi sind einzeln beschrieben.
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xs:string">
+					<xsd:enumeration value="APPEND">
+						<xsd:annotation>
+							<xsd:documentation>
+								Hängt einfach alle Datensätze die ein größeres Datum haben mit INSERT an. Es finden keine Überprüfungen auf Keys, Updates oder Löschungen statt.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="APPEND_INCLUDE_MAXDATE">
+						<xsd:annotation>
+							<xsd:documentation>
+								Hängt alle Datensätze die ein größeres ODER gleich großes Datum haben von der Quelltabelle an die Zieltabelle an. Dafür werden die Datensätze mit gleichgroßem Datum im Ziel vorher gelöscht
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="UPDATE_EXISTING">
+						<xsd:annotation>
+							<xsd:documentation>
+								Benötigt genau einen Primary Key bzw. als Key markierte Spalte. Ermittelt alle Datensätze die in der Quelle nach dem Max-Datum editiert wurden und 
+								merkt sich diese Keys. Diese Keys werden in der Zielansicht gelöscht, mit dem schlussendlichen Effekt das sie beim Neueinfügen einer Aktualisierung entsprechen.
+								In diesem Modus geht man davon aus das ein Datensatz mit PK nur in einer Ausprägung vorkommen kann und aktualisierbar ist.
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="variable">
+		<xsd:annotation>
+			<xsd:documentation>
+				(Re-)Deklariert eine Variable mit dem angegebenen Ausdruck
+			</xsd:documentation>
+		</xsd:annotation>
+		<xsd:attribute name="name" use="required" type="xs:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					Name der Variable
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		
+		<xsd:attribute name="type" use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+					Typ der Variablen
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xs:string">
+					<xsd:enumeration value="Int64">
+						<xsd:annotation>
+							<xsd:documentation>
+								Eine Ganzzahl
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="Double">
+						<xsd:annotation>
+							<xsd:documentation>
+								Eine Gleitkommanzahl
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="DateTime">
+						<xsd:annotation>
+							<xsd:documentation>
+								Ein Datum mit Zeitangabe
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="Boolean">
+						<xsd:annotation>
+							<xsd:documentation>
+								Ein Boolean-Wahrheitswert
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="String">
+						<xsd:annotation>
+							<xsd:documentation>
+								Ein Text
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		
+		<xsd:attribute name="value" use="optional" type="xs:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					Ein fixer nicht interpretierter Wert
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		
+		<xsd:attribute name="selectStmt" use="optional" type="xs:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					Ermittlung eines Wertes mittels Select-Statment - Als Ergebnis wird die erste Zeile - erste Spalte verwendet. 
+					Das Attribut selectContext muss angegeben sein
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		
+		<xsd:attribute name="selectContext" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>
+					Der Ausführungskontext für das SQL-Statment selectStmt
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xs:string">
+					<xsd:enumeration value="Source">
+						<xsd:annotation>
+							<xsd:documentation>
+								Ausführung des SQL-Statments auf der Quellverbindung
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+					<xsd:enumeration value="Target">
+						<xsd:annotation>
+							<xsd:documentation>
+								Ausführung des SQL-Statments auf der Zielverbindung
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:enumeration>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+
+		<xsd:attribute name="expression" use="optional" type="xs:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					Ein Ausdruck der evaluiert wird. Verweis auf andere Variablen ist möglich mit ${{VarName}}
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+
+	</xsd:complexType>
+	
+</xs:schema>
