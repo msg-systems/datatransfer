@@ -88,6 +88,7 @@
     <Folder Include="media" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\datatransfer.exe.md" />
     <Content Include="Content\de\Datenquellen.txt" />
     <None Include="Content\de\Ablaufplan.pdf" />
     <None Include="Content\de\Ablaufplan.vsd" />
@@ -115,6 +116,7 @@
   <ItemGroup>
     <Content Include="Content\docIndex.md" />
     <Content Include="Content\en\Datenquellen.txt" />
+    <Content Include="Content\TransferJob.md" />
     <Content Include="icons\Help.png" />
   </ItemGroup>
   <!-- Import the common build targets during NuGet restore because before the packages are being installed, $(SHFBROOT) is not set yet -->

@@ -5,9 +5,12 @@ You can navigate between .md pages in the navbar explorer or by clicking links i
 For [general information](../../../../) about DataTransfer look [here](../../../../).
 
 Following sections are covered by the help docs:
-- [Command line parameters for data transfer]()
+- [Command line parameters and usage for dataTransfer.exe](datatransfer.exe.md)
+	- [Parameters](datatransfer.exe.md#Parameters)
+	- [Examples](datatransfer.exe.md#Examples)
 - [General transfer job structure]()
-	- [Basic functions]()
+	- [General structure]()
+	- [Basic functionality]()
 	- [Workflow functionality]()
 	- [Synchronizing and merging]()
 - [Domain specific language DSL]()
