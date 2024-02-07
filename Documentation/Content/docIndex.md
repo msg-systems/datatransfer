@@ -2,7 +2,7 @@
 
 Welcome to DataTransfer help pages.
 You can navigate between .md pages in the navbar explorer or by clicking links in the current page.
-For [general information](../../../../readme.md) about DataTransfer look [here](../../../../readme.md).
+For [general information](../../../../) about DataTransfer look [here](../../../../).
 
 Following sections are covered by the help docs:
 - [Command line parameters for data transfer]()
