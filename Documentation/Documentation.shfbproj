@@ -88,6 +88,7 @@
     <Folder Include="media" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\DataSourceHelpTutorials.md" />
     <Content Include="Content\datatransfer.exe.md" />
     <Content Include="Content\de\Datenquellen.txt" />
     <None Include="Content\de\Ablaufplan.pdf" />
@@ -98,6 +99,7 @@
     <None Include="Content\de\Domain specific language definition.pdf" />
     <None Include="Content\de\job.xsd" />
     <None Include="Content\de\Struktur Formatjob.pdf" />
+    <None Include="Content\en\basic_job_structure.pptx" />
     <None Include="Content\en\Domain specific language definition.docx" />
     <None Include="Content\en\Domain specific language definition.pdf" />
     <None Include="Content\en\job.xsd" />
@@ -115,9 +117,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\docIndex.md" />
+    <Content Include="Content\DSL.md" />
     <Content Include="Content\en\Datenquellen.txt" />
     <Content Include="Content\TransferJob.md" />
     <Content Include="icons\Help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Content\en\basic_job_structure.png">
+      <ImageId>basic_job_structure</ImageId>
+      <AlternateText>basic job structure</AlternateText>
+    </Image>
   </ItemGroup>
   <!-- Import the common build targets during NuGet restore because before the packages are being installed, $(SHFBROOT) is not set yet -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="'$(MSBuildRestoreSessionId)' != ''" />
