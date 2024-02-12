@@ -113,7 +113,7 @@ DataTransfer has only basic workflow functionality and follows a prescribed orde
 Some of them has to set for specific data sources, i.e. disabling of transaction for data providers which does not support thise.
 
 The basic workflow looks like this:
-![TransferBlock workflow](en/workflow.png "TransferBlock workflow")
+![TransferBlock workflow](en/Workflow.png "TransferBlock workflow")
 
 ### Transaction settings
 
