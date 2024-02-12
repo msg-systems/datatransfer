@@ -91,14 +91,14 @@
     <Content Include="Content\DataSourceHelpTutorials.md" />
     <Content Include="Content\datatransfer.exe.md" />
     <Content Include="Content\de\Datenquellen.txt" />
-    <None Include="Content\de\Ablaufplan.pdf" />
-    <None Include="Content\de\Ablaufplan.vsd" />
     <None Include="Content\de\DataTransfer_UML_ClassDiagram.pdf" />
     <None Include="Content\de\DataTransfer_UML_ClassDiagram.vsdx" />
     <None Include="Content\de\Domain specific language definition.docx" />
     <None Include="Content\de\Domain specific language definition.pdf" />
     <None Include="Content\de\job.xsd" />
     <None Include="Content\de\Struktur Formatjob.pdf" />
+    <None Include="Content\de\Workflow.pdf" />
+    <None Include="Content\de\Workflow.vsd" />
     <None Include="Content\en\basic_job_structure.pptx" />
     <None Include="Content\en\Domain specific language definition.docx" />
     <None Include="Content\en\Domain specific language definition.pdf" />
@@ -126,6 +126,10 @@
     <Image Include="Content\en\basic_job_structure.png">
       <ImageId>basic_job_structure</ImageId>
       <AlternateText>basic job structure</AlternateText>
+    </Image>
+    <Image Include="Content\en\Workflow.png">
+      <ImageId>Workflow</ImageId>
+      <AlternateText>Workflow</AlternateText>
     </Image>
   </ItemGroup>
   <!-- Import the common build targets during NuGet restore because before the packages are being installed, $(SHFBROOT) is not set yet -->

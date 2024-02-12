@@ -74,13 +74,15 @@ Windows only: Because connection strings often have passwords within, it is poss
 ### TransferTableJob
 
 The TransferBlock is the context for all TransferTableJobs. In the most simple form TransferTableJobs only have 3 attributes:
-- TransferTableJob/@sourceTable or alternative TransferTableJob/customSourceSelect
+- TransferTableJob/@sourceTable (maybe with TransferTavbleJob/@sourceWhere) or alternative TransferTableJob/customSourceSelect
 - TransferTableJob/@targetTable
 - TransferTableJob/@identicalColumns or TransferTableJob/ColumnMap
 
 With these attributes/elements the source data set and target table is defined. The name of sourceTable/targettable should be in the native way the data provider needs. For example Excel tables are referenced with [SourceSheet$A:D] (Sheet SourceSheet column A to D).
 
-The attribute identicalColumns starts by checking all columns in the source (or customSourceSelect) and assumes in the target table are identical named columns too. The target can have more columns too.
+The attribute @identicalColumns starts by checking all columns in the source (or customSourceSelect) and assumes in the target table are identical named columns too. The target can have more columns too.
+
+@sourceWhere and @SourceTable makes most sense if used with identicalColumns, so you can omit a customSourceSelect and a ColumnMap.
 
 ```
 <TransferTableJob sourceTable="mySource" targetTable="myTarget" identicalColumns="true"/>
@@ -105,6 +107,94 @@ The columnMap or the customSourceSelect allow full usage of the query syntax of 
 ```
 
 ## Workflow functionality
+
+DataTransfer has only basic workflow functionality and follows a prescribed order in processing. There are just a few spots which are used as injection points for own logic or functionality.
+
+Some of them has to set for specific data sources, i.e. disabling of transaction for data providers which does not support thise.
+
+The basic workflow looks like this:
+![TransferBlock workflow](en/workflow.png "TransferBlock workflow")
+
+### Transaction settings
+
+You can enable/disable transactions on the target data source with TransferTableJob/@disableTransaction. To disable the transactions in generally not recommended, but can be necessary if the target does not support these. I.e. Access or file formats does not support transactions.
+
+With the addition of TransferTableJob/@transactionIsolationLevel you can set the needed isolation level - default is serializable. For more information on transactions and isolation levels please refer to your data source provider documentation.
+
+```
+<transferBlock name="myBlock" 
+	conStringSourceType="..." conStringSource="..."	conStringTargetType="..." conStrintTarget="..."
+	disableTransaction = "false" transactionIsolationLevel = "ReadCommited">
+		...
+</transferBlock>
+```
+
+### Pre-conditions
+
+Pre-conditions can be used on TransferBlock (TransferBlock/preCondition) and/or on TransferTableJob (TransferTableJob/preCondition) level. On TransferBlock level they are once checked for the whole block and on TransferTableJob level before running the specific TransferTableJob.
+You can specify as many needed. They are processed in order of appearance.
+
+Each pre-condition can either pe checked on the source or the target data source. This is specified at preCondition/@checkOn.
+
+With preCondition/@retryCount and preCondition/@retryDelay additonal tries can be defined, if the check fails. preCondition/@retryCount sets the amount of retries and preCondition/@retryDelay the seconds to wait between the retries.
+
+To get the date for the check you have to specify a query with preCondition/@select on the data source which returns the values to be checked. If multiple records are returned by your query only the first record is checked.
+
+The check itsself is defined in preCondition/@condition. The syntax is [colname]:[desiredVale]. You can set multiple conditions by seperating them with ;.
+
+```
+<transferBlock name="myBlock" 
+	conStringSourceType="..." conStringSource="..."	conStringTargetType="..." conStrintTarget="...">
+	
+	<preCondition checkOn="Target" select="Select count(*) as cnt from MyTab" condition="cnt:0"/>
+
+	<preCondition checkOn="Source" select="Select 1 as result from MyTab where exists(complicated subselect)" condition="result:1"/>
+
+	<TransferTableJob sourceTable="..." targetTable="...">
+		<preCondition checkOn="Source" retryCount="5" retryDelay="10" select="Select col1, col2 from sourceTab" condition="col1:test;col2:other"/>
+	</TransferTableJob>
+</transferBlock>
+```
+
+### Record diffrence check
+
+Another special form of condition is the record diffrence check. It checks the record count on the target and compare it with the record count to transfer on source. If the new record has less than a specified percentage of the current target data, the processing is aborted.
+The allowed maximum diffrence is defined with TransferTableJob/@maxRecordDiff in percentage. 
+This scenario is mostly used for DWH transfers, where the source data is sometimes incomplete and has to be checked before.
+
+```
+	<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" maxRecordDiff = "60" />
+```
+
+Example: Assume that targetTab has currently 100 records. If maxRecordDiff is 60, the transfer is aborted if there are less than 40 records in sourceTab to transfer, because more than 60% of data would be deleted in the target table.
+
+### Pre and post SQL statements
+
+Pre und post SQL statements can be executed in any amount for each TransferTableJob. They are always executed on the target data source, because of the transactional scope which only exists there. 
+They are executed before the transfer starts modifying data and after the transfer is done. Only exception is [merging](TransferJob.md#Synchronizing-and-merging), which is always processed as last step.
+These statement can execute any abritary SQL like stored procedures.
+
+```
+	<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" >
+	  <preStatement> UPDATE tempTab set x='y'</preStatement>
+	  <preStatement> Exec logProcess('myLoggingStart') </preStatement>
+	  ...
+	  <postStatement> Exec logProcess('myLoggingEnd') </postStatement>
+	</TransferTableJob>
+```
+
+### Deletion before filling
+
+If you just want to transfer data, without synching or merging, you can delete the content of the source table before loading the new data. There is no danger of data loss, if you are using a transaction, because its just rolled back on error. Please be aware that database trigger may fire on deletion.
+To activate the deletion use TransferTableJob/@deleteBefore. To restrict the set of deleted data add TransferTableJob/@deleteWhere.
+
+The same can achieved by using a preStatement sql.
+
+```
+	<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" deleteBefore = "true" deleteWhere = "type = 'server'" />
+```
+
+### Batchsize
 
 ## Synchronizing and merging
 
