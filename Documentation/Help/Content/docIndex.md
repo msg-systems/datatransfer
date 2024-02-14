@@ -1,0 +1,41 @@
+# DataTransfer documentation home
+
+Welcome to DataTransfer help pages.
+You can navigate between .md pages in the navbar explorer or by clicking links in the current page.
+For [general information](../../../../) about DataTransfer look [here](../../../../).
+
+Following sections are covered by the help docs:
+- [Command line parameters and usage for dataTransfer.exe](datatransfer.exe.md)
+	- [Parameters](datatransfer.exe.md#Parameters)
+	- [Examples](datatransfer.exe.md#Examples)
+- [Transfer job structure](TransferJob.md)
+	- [General structure](TransferJob.md#General-structure)
+	- [Basic functionality](TransferJob.md#Basic-functionality)
+	- [Workflow functionality](TransferJob.md#Workflow-functionality)
+	- [Synchronizing and merging](TransferJob.md#Synchronizing-and-merging)
+- [Domain specific language DSL](DSL.md)
+	- [Variables](DSL.md#Variables)
+	- [Operators](DSL.md#Operators)
+	- [Functions](DSL.md#Functions)
+	- [SQL Parser for non SQL](DSL.md#SQL-Parser-for-non-SQL)
+		- [Syntax](DSL.md#Syntax)
+		- [Defining origins and remote request](DSL.md#Defining-origins-and-remote-request)
+- [Tutorials and descriptions for specific data sources](DataSourceHelpTutorials.md)
+	- [using ADO transfers](DataSourceHelpTutorials.md#using-ADO-transfers)
+		- [MSSQL](DataSourceHelpTutorials.md#MSSQL)
+		- [DB2](DataSourceHelpTutorials.md#DB2)
+		- [MySql/MariaDB](DataSourceHelpTutorials.md#MySql/MariaDB)
+		- [Oracle](DataSourceHelpTutorials.md#Oracle)
+		- [OLEDB](DataSourceHelpTutorials.md#OLEDB)
+			- [Access](DataSourceHelpTutorials.md#Access)
+			- [Excel](DataSourceHelpTutorials.md#Excel)
+		- [LDAP](DataSourceHelpTutorials.md#LDAP)
+		- [ODBC](DataSourceHelpTutorials.md#ODBC)
+		- [Other ADO sources](DataSourceHelpTutorials.md#Other-ADO-sources)
+	- [non ADO/custom transfers](DataSourceHelpTutorials.md#non-ADO/custom-transfer)
+		- [LDAP custom](DataSourceHelpTutorials.md#LDAP-custom)
+		- [using CSV](DataSourceHelpTutorials.md#CSV)
+		- [using XML](DataSourceHelpTutorials.md#XML)
+			- [HCL Notes Domino ReadViewEntries](DataSourceHelpTutorials.md#HCL-Notes-Domino-ReadViewEntries)
+		- [using JSON](DataSourceHelpTutorials.md#JSON)
+- [Development]()

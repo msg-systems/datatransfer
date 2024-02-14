@@ -103,6 +103,7 @@
     <None Include="Content\en\Domain specific language definition.docx" />
     <None Include="Content\en\Domain specific language definition.pdf" />
     <None Include="Content\en\job.xsd" />
+    <None Include="Content\en\SyncAndMerge.pptx" />
     <None Include="Content\en\Workflow.pdf" />
     <None Include="Content\en\Workflow.vsd" />
     <None Include="Content\en\DataTransfer_UML_ClassDiagram.pdf" />
@@ -126,6 +127,14 @@
     <Image Include="Content\en\basic_job_structure.png">
       <ImageId>basic_job_structure</ImageId>
       <AlternateText>basic job structure</AlternateText>
+    </Image>
+    <Image Include="Content\en\Sync.png">
+      <ImageId>Sync</ImageId>
+      <AlternateText>Sync</AlternateText>
+    </Image>
+    <Image Include="Content\en\SyncAndMerge.png">
+      <ImageId>SyncAndMerge</ImageId>
+      <AlternateText>Sync And Merge</AlternateText>
     </Image>
     <Image Include="Content\en\Workflow.png">
       <ImageId>Workflow</ImageId>

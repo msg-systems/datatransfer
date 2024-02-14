@@ -1,0 +1,60 @@
+Access = System.Data.OleDb  ## Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\PIM-Export-Bearbeitergruppen.mdb;Persist Security Info=True
+Excel = System.Data.OleDb ## Provider=Microsoft.ACE.OLEDB.12.0;Data Source=TestData\SSIS_Export.xlsx;Extended Properties=&quot;Excel 12.0 Xml;HDR=YES&quot;;
+ODBC = System.Data.Odbc ## driver name should be lookuped in ODBC settings of Windows and should be written in {}
+DB2 = IBM.Data.DB2 ## Server=dbservername:50000;Database=dbname;UserID=db2admin;pwd=geheim
+MSSQL = System.Data.SqlClient
+Oracle = System.Data.OracleClient
+Notes (1) = System.Data.Odbc ## string sConnString = "Driver={Lotus Notes SQL Driver (*.nsf)};Server=dominoserver/msg;database=applic/msg0001.nsf;Uid=xxx;Pwd=xxx";
+				User and password are a mapped user id, which should be created in the notes odbc driver
+				attention on 32/64 bit architecture of ODBC!
+				On notes views the programmatic name of the column is used (last tab ob properties for a column)
+				
+				!!! On Domino server !!!
+				You must add the notesSQL path to the PATH system environment variable
+				You must add a location document on the server, otherwise only the local server can be queried
+				You must start the transfer with highest privileges, otherwise the odbc driver kills the datatransfer
+
+Notes (2) = better solution with HTTP requests and xml data source without any odbc stuff
+			TargetType Custom.XML
+			In connection string add 
+			  - AuthType=LotusNotes
+			  - User=Webuser of lotus notes
+			  - Password=Password for web user
+			  - Server=servername in url format, i.e. mydomino.mydomain.de
+			  - Protocoll=http/https
+			  - CookieName=Name of the domino session cookie (domino server should be configured for this) - default DomAuthSessId and LtpaToken
+			For source tables use the following urls http(s)://mydomino.mydomain.de/myDatabase.nsf/myViewname?ReadViewEntries
+			Domino servers hould be configured to show at least 5000 entries on reading view entries
+				
+Oracle = System.Data.OleDb ## Provider=OraOLEDB.Oracle;Data Source=(DESCRIPTION=(CID=[ClientId])(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=[host])(PORT=[Port])))(CONNECT_DATA=(SID=[DB-Name/SID])(SERVER=DEDICATED)));User Id=[ID];Password=[Password]
+		Needs ODAC 32/64 bit from oracle in the desired architecture
+
+Special paramaeters for from/custom types can be found in the documentation of the class RemoteRequest
+CSV = TargetType Custom.Export.CSV ir Custom.CSV - connection string can define (but don´t has to) delimiter (seperator between tokens) and enclose (Bracing for tokens). 
+			TargetTable is a path/filename on the drive where the result should be saved
+JSON = TargetType Custom.JSON connection string not needed. TargetTable is a path/filename on the drive where the result should be saved 
+       Can only read arrays
+	   in from part a jsonpath to the array can be defined with the parameterjsonpath 
+		i.e. jsonPath=$[2].subarray:::file://D:\DevSpace\VisualStudio\SQL_DWH\DataTransfer\TestData\json1.json
+XML = TargetType Custom.XML connection string not needed. TargetTable is a path/filename on the drive where the result should be saved 
+	  in from part a xpath to the array can be defined with the parameter xpath 
+		i.e. xpath=element/element2:::file://D:\DevSpace\VisualStudio\SQL_DWH\DataTransfer\TestData\xml1.xml
+LDAP (1) = System.Data.OleDb ## Provider=ADsDSOObject;  
+		either
+		<LDAP://ldapserver:389/dc=myDC>;(&(objectCategory=user)(objectClass=user)(userPrincipalName=*));name,userPrincipalName,mail,company,distinguishedName,memberOf;subtree
+		or
+		SELECT cn FROM 'LDAP://ldapserver:389/dc=myDC' where objectCategory='user' and company = 'msg services ag'
+		results > 5000 Zeilen result in errors (setting on the domain controller) - LDAP (2) does not have these problems 
+		LDAPS can be queried as well with LDAP:// but with port 636
+LDAP (2) = LDAPBatchCustom ## ;
+    Syntax like LDAP (1), but behind the where statement only LDAP search criterias are working
+    i.e. (&(a)(b)(c)) for and combinations (|(a)(b)(c)) for or combinations and ! for NOT
+    Operators = < > ... wildCards * are allowed
+    For bitmasks special constants are used
+    BitMask AND = Attribut:1.2.840.113556.1.4.803:=comparision value i.e. userAccountControl:1.2.840.113556.1.4.803:=2 userAccountControl with bit 2 set (2 = 000000010)
+    BitMaske OR = 1.2.840.113556.1.4.804
+    In select dsl expressions are possible like givenname + ' ' + sn or cint(attribut) - syntax C# operations, 
+    functions are case insensitiv 
+    Conversions: cInt/cOctet/cDate8/cDateGen 
+    Split/denormalize records: splitRows
+	Load properties with more than 1500 values: loadBigArray
