@@ -271,10 +271,62 @@ The target data is filtered with TransferTableJob/@targetSyncWhere, which has to
 </TransferTableJob>
 ```
 
+#### Synchronizing by last modification
 
+A special type of synchronization is the synchronization by last modification. This type allows to insert/update only records in the target table which have newer representations in the source table. 
+To do this some configurations have to be set 
+- TransferTableJob/@SyncByLastMod has to be "true"
+- TransferTableJob/syncByLastModOptions/@SyncByLastModField should be the timestamp/datetime field name on both sides for a comparision (diffrent column names are not supported)
+- TransferTableJob/syncByLastModOptions/@SyncByLastModMode should be set to a valid mode
+
+The attributes [TransferTableJob/@sync](TransferJob.md#Synchronizing) and [TransferTableJob/SyncOptions](TransferJob.md#Synchronizing) do not apply for this synchronization type.
+Filtering records on source or target still works like described [here](TransferJob.md#Synchronizing).
+
+The behaviour of the syncrhonization by last modification is controlled by TransferTableJob/syncByLastModOptions/@SyncByLastModMode.
+The following options are valid:
+- APPEND : Appends all records of the source which have a bigger last modification date then the highest in the target data souce - no validations are made if the record already exists
+- APPEND_INCLUDE_MAXDATE : Appends all records of the source which have a bigger or equal last modification date then the highest in the target data souce - no validations are made if the record already exists
+- UPDATE_EXISTING : This mode needs at exact one key column [defined like here](TransferJob.md#Synchronizing). Before appending data like in the modes APPEND/APPEND_INCLUDE_MAXDATE, this mode checks for existing primary keys first and deletes then before appending. The result are updated and appended records in the target, to the newest state from the source table. Please note, that this runs deletes and inserts, which may result in triggered actions on your target table.
+
+```
+<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" SyncByLastMod="true" identicalColumns="true" >
+	<syncByLastModOptions SyncByLastModField="LastModDateTime" SyncByLastModMode="APPEND"/>
+</TransferTableJob>
+
+<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" SyncByLastMod="true" identicalColumns="true" >
+	<syncByLastModOptions SyncByLastModField="LastModDateTime" SyncByLastModMode="UPDATE_EXISTING"/>
+	<customKeys> <TransferTableColumn sourceCol="KeyColonSource" targetCol="KeyColOnTarget" isKey="true" /> </customKeys>
+</TransferTableJob>
+```
+
+Just to show a more advanced configuration options: A similar behaviour, with even more functionality, can be achieved by [variables](DSL.md#Variables) und TransferTableJob@sourceWhere. 
+This example first initializes the variables, then uses them as to filter the source and then does a synchronization with only updates and inserts. With this option no deletes are executed at all and key comparision with multiple columns are possible.
+```
+<TransferTableJob sourceTable="sourceTab" targetTable="targetTab" sync="true" identicalColumns="true" sourceWhere = "LastModDateTime &gt; ${{MyLastModVar}}" >
+	<syncOptions noDeletes = "true" />
+	<variable name="MyLastModVar" type="DateTime" selectContext="Target" selectStmt="SELECT Max(LastModDateTime) as maxDatum from targetTab"/>
+	<customKeys> <TransferTableColumn sourceCol="KeyColonSource" targetCol="KeyColOnTarget" isKey="true"/> </customKeys>
+</TransferTableJob>
+```
 
 ### Merging
 
+Merging data in the meaning of dataTransfer is transfering data in the target between one and another table with insert/update and no deletes. No data boundaries between providers are passed.
+This can always be archived by a [post statement](TransferJob.md#Pre-and-post-SQL-statements), but then you have to type the merge command yourself.
 
+In the current release is the automatic building of merge comands for MSSQL data sources a built-in feature. To activate, you have to fill the TransferTableJob/MergeOptions.
+First set TransferTableJob/MergeOptions/@merge as "true" and define a target table with TransferTableJob/MergeOptions/@targetTable. If you have identical columns between target table and merge table you can set TransferTableJob/MergeOptions/@autoMergeColumns to "true". If set to false TransferTableJob/MergeOptions/columnMap has to be defined. To define the merge keys use TransferTableJob/MergeOptions/mergeKey.
 
+```
+<TransferTableJob sourceTable="sourceTab" targetTable="targetTab_stage" identicalColumns="true" >
+	<mergeOptions merge="true" autoMergeColumns="true" targetTable="targetTab_final" >
+		<mergeKey sourceCol="Key" targetCol="Key" />
+	</mergeOptions>
+</TransferTableJob>
+```
+
+If you want to use this feature for other data provider than MS SQL you have to implement it in the provider class of the source code of dataTransfer or use manual written [post statements](TransferJob.md#Pre-and-post-SQL-statements).
+```
+public override async Task merge(string sourceTable, Model.TransferTableMergeOptions mergeOptions)
+```
 [Back to index](docIndex.md)
