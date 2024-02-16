@@ -299,12 +299,13 @@ The following options are valid:
 </TransferTableJob>
 ```
 
-Just to show a more advanced configuration options: A similar behaviour, with even more functionality, can be achieved by [variables](DSL.md#Variables) und TransferTableJob@sourceWhere. 
-This example first initializes the variables, then uses them as to filter the source and then does a synchronization with only updates and inserts. With this option no deletes are executed at all and key comparision with multiple columns are possible.
+Just to show a more advanced configuration options: A similar behaviour, with even more functionality, can be achieved by [variables](DSL.md#Variables) und TransferTableJob/@sourceWhere. 
+This example first initializes the variables, then uses them as to filter the source and then does a synchronization with only updates and inserts. With this option no deletes are executed at all and key comparision with multiple columns are possible. 
+(&amp;gt; is the code for > in xml outside of CDATA-regions)
 ```
 <TransferTableJob sourceTable="sourceTab" targetTable="targetTab" sync="true" identicalColumns="true" sourceWhere = "LastModDateTime &gt; ${{MyLastModVar}}" >
 	<syncOptions noDeletes = "true" />
-	<variable name="MyLastModVar" type="DateTime" selectContext="Target" selectStmt="SELECT Max(LastModDateTime) as maxDatum from targetTab"/>
+	<variable name="MyLastModVar" type="DateTime" selectContext="Target" selectStmt="SELECT Max(LastModDateTime) as maxDate from targetTab"/>
 	<customKeys> <TransferTableColumn sourceCol="KeyColonSource" targetCol="KeyColOnTarget" isKey="true"/> </customKeys>
 </TransferTableJob>
 ```
