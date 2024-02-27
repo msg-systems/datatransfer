@@ -115,11 +115,101 @@ The parameter count is dynamic in some cases.
 The language is case insensitive. It´s not important if function names are written upper- or lowercase.
 The following functions are valid for all DSL variants.
 
-...
+### Math functions
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|Sin|Number X<br/>Returns Number|Calculates sine of x|
+|Cos|Number X<br/>Returns Number|Calculates cosine of x|
+|Tan|Number X<br/>Returns Number|Calculates tangent of x|
+|Abs|Number X<br/>Returns Number|Calculates absolute of x|
+|Pi|N/A<br/>Returns Number|PI|
+|Ceiling|Number X<br/>Returns Number|Rounds the number x up to the next integer|
+|Floor|Number X<br/>Returns Number|Rounds the number x down to the next integer|
+|Round / rnd|Number X<br/>[integer precision]<br/>Returns Number|Rounds the number x to the next nearest integer.<br/>If precision is set, the rounding is calculated on the n´th decimal position|
+|Max|Number X<br/>Number Y<br/>Returns Number|Returns the maximum of [X] and [Y]|
+|Min|Number X<br/>Number Y<br/>Returns Number|Returns the minimum of [X] and [Y]|
+
+### String functions
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|ToUpper|String Input<br/>Returns String|Converts all lowercase letters of [input] to uppercase|
+|ToLower|String Input<br/>Returns String|Converts all uppercase letters of [input] to lowercase|
+|IndexOf|String Input<br/>String SearchString<br/>Returns Number|Searches in string [input] for occurence of [SearchString] and returns the index position.<br/>If the string isn´t found the function returns -1|
+|Replace|String Input<br/>String SearchString<br/>String ReplaceString<br/>Returns String|Search and replaces all occurences of [SearchString] in [input] with the replacement string [ReplaceString].|
+|Substring|String Input<br/>Number startIndex<br/>[Number Length]<br/>Returns String| Returns a substring of [input]. This is determined from the the start position [startIndex] to the end or if given [Length] in the given [Length] from [startindex].|
+|strContains / contains|String Input<br/>String SearchString<br/>Returns Bool|Checks if [input] occurs in string [SearchString].<br/>If so, returns true, else false.|
+|strLeft / left|String Input<br/>String SearchString<br/>Returns String|Searchs from the left for the first occurrence of [SearchString] in [input] and returns the substring before the found occurence. If [SearchString] is not found the return is an empty string.|
+|strRight / right|String Input<br/>String SearchString<br/>Returns String|Searchs from the left for the first occurrence of [SearchString] in [input] and returns the substring after the found occurence. If [SearchString] is not found the return is an empty string.|
+|strMid / Mid|String Input<br/>String SearchStringStart<br/>String SearchStringEnd<br/>Returns String|Searchs from the left for the first occurrence of [SearchStringStart] in [Input]. Then it searches from there for the first occurrence of [SearchStringEnde]. The substring between both findings is returned.<br/>If [SearchStringStart] or [SearchStringEnd] is not found the return is an empty string.|
+|startsWith|String Input<br/>String SearchString<br/>Returns Bool|Checks if [input] starts with [SearchString]. If so, returns true, else false.|
+|endsWith|String Input<br/>String SearchString<br/>Returns Bool|Checks if [input] ends with [SearchString]. If so, returns true, else false|
+
+### Date functions
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|Date|Number Ticks<br/>OR<br/>Number year<br/>Number month<br/>Number day<br/>[Number hour<br/>Number minute<br/>Number second]<br/>Returns Date|Creates a date from the count of [Ticks] (see .NET documentation for DateTime)<br/>OR<br/>Creates a date composed of the date part parameters [year] [month] [day].<br/>[hour], [minute] and [second] are optional and can be used to set the time as well.|
+|AdjustSeconds|Date Input<br/>Number count<br/>Returns Date|Adds [count] seconds to the date returns the calculated date. Negative [count] is subtracted.|
+|Adjustminutes|Date Input<br/>Number count<br/>Returns Date|Adds [count] minutes to the date returns the calculated date.<br/>Negative [count] is subtracted.|
+|AdjustHours|Date Input<br/>Number count<br/>Returns Date|Adds [count] hours to the date returns the calculated date.<br/>Negative [count] is subtracted.|
+|AdjustDays|Date Input<br/>Number count<br/>Returns Date|Adds [count] days to the date returns|
+|AdjustMonths|Date Input<br/>Number count<br/>Returns Date|Adds [count] months to the date returns the calculated date.<br/>Negative [count] is subtracted.|
+|AdjustYears|Date Input<br/>Number count<br/>Returns Date|Adds [count] years to the date returns the calculated date.<br/>Negative [count] is subtracted.|
+|Second|Date Input<br/>Returns Number|Returns the second date time part of [input]|
+|Minute|Date Input<br/>Returns Number|Returns the minute date time part of [input]|
+|Hour|Date Input<br/>Returns Number|Returns the hour date time part of [input]|
+|Day|Date Input<br/>Returns Number|Returns the day date time part of [input]|
+|Month|Date Input<br/>Returns Number|Returns the month date time part of [input]|
+|Year|Date Input<br/>Returns Number|Returns the year date time part of [input]|
+
+### Conversion functions
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|cstr|Type neutral [input]<br/>Returns String|Converts [input] to string and returns it.|
+|Cbool|Type neutral [input]<br/>Returns Bool|Converts [input] to boolean and returns it. If not possible an error is returned.|
+|Cint|Type neutral [input]<br/>Returns Ganznumber|Converts [input] to integer and returns it. If not possible an error is returned.|
+|Cdbl|Type neutral [input]<br/>Returns Number|Converts [input] to double/number and returns it. If not possible an error is returned.|
+|Cdate|Type neutral [input]<br/>Returns Date|Converts [input] to date and returns it. If not possible an error is returned.|
+|cChar|Type neutral [input]<br/>Returns Zeichen|Converts [input] to character|
+
+### Logic functions
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|If / iif,/ case / casewhen|Bool Condition1<br/>Type neutral Result1<br/>[Bool Condition 2-n<br/>Type neutral Result 2-n]<br/>Type neutral ElseResult<br/>Returns Type neutral|Checks if [condition1] is true and if so, returns [Result1].<br/>Afterwards check the following conditions in the order of occurrence and return the result for the first true case/if. If no condition is true, return [ElseResult].|
+|Nvl|Type neutral [input]<br/>Type neutral [ElseResult]<br/>Returns Type neutral|Checks if [input] is null. If so, returns [ElseResult], otherwise return [input]|
+|Not|Bool Input<br/>Returns bool|Changes the boolean value of [input] from true to false or reverse and returns it.|
 
 ## SQL Parser for non SQL
 
+Custom SQL allows SQL syntax on non-SQL data sources which do not support SQL like CSV, XML or JSON. 
+
 ### Syntax
+
+The base syntax is the same as in original SQL:
+
+``` 
+SELECT [columns|expressions]
+  FROM [Remote origin] as [tab identifier] [inner join [Remote origin] as [tab identifier] on [bool-expression]]*
+ WHERE [bool-expression]
+``` 
+
+All expressions are using the [DSL language](DSL.md#Domain_specific_language_DSL).
+The syntax of [remote origins](DSL.md#Defining_origins_and_remote_request) is described [here](DSL.md#Defining_origins_and_remote_request).
+
+Special language characteristics are that
+- you have to name all tables and calculated columns with a name/identifier.
+  Names of columns or “tables” are named with “AS Name”.
+  ```SELECT 1 as Column FROM Table as T```
+- Inner joins accept only = as condition with “=” are accepted.
+  More complex comparisions are possible in the where clause
+  ```Select T1.Key FROM Tab1 as T1 inner join Tab2 T2 on T1.Key = T2.Key ```
+- If using multiple tables/[remote origins](DSL.md#Defining_origins_and_remote_request), every column has to be specified full qualified. Every column has to be refrenced by [remoteOrigin alias].[column name]
+-  Variables can be inserted with the data binding expression ${{Varname}}
+  ```SELECT 3 + ${{NumberVar}} as Calc from Tab AS T1```
 
 ### Defining origins and remote request
 

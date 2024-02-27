@@ -87,10 +87,10 @@ The Visual Studio project uses a Sandcastle Helpfile Builder project to create d
 You can customize the code to fulfill your needs. 
 - to add an ADO.Net driver just add the driver to the project references (Visual Studio)
   - .Net 4.8 compile it
-  - .Net 7 - add a line in program.cs Main method like : DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance); and compile it
+  - .Net 7 - add a line in program.cs Main method like ```DbProviderFactories.RegisterFactory("IBM.Data.DB2", IBM.Data.Db2.DB2Factory.Instance);``` and compile it
 - to implement custom logic for a ADO.Net provider (example MSSQLInterface.cs)
   - Create a class under Database which is inheriting from DBInterface and define the properties supportsDataAdapterCommands, supportsParameter and supportsBatchCommands (in doubt just try)
-  - reference this class in DBInterface.cs method getInterface by adding a new case like ' case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break; '
+  - reference this class in DBInterface.cs method getInterface by adding a new case like ```case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break;```
   - other features which can be added in your class
     - add methods for createDataAdapter, createDBCommandBuilder if the ADO.Net-Factory class doesn´t support this
     - implement own methods for deletion deleteTableRows
@@ -104,7 +104,7 @@ You can customize the code to fulfill your needs.
     - define handler for writing (if needed): initFillContext, commitFillContext, rollbackFillContext, insertHandler and if needed updateHandler and deleteHandler
     - define if SQL syntax is used and complex from expressions (like http)
     - overwrite base methods if needed like deleteTableRows 
-  - reference this class in DBInterface.cs method getInterface by adding a new case like ' case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break; '
+  - reference this class in DBInterface.cs method getInterface by adding a new case like ```case "myADOProvidername": returnVal = new MyADOInterfaceClass(conString, logger); break;```
 - to implement your own DSL for your own provider (example LDAPInterface.cs class ldapDSL)
   - create a valueProvider inherited from DSLValueProvider which implements how to resolve identifier to values
   - create a functionHandler inherited from DSLFunctionHanlder which implements how to execute functions
@@ -115,5 +115,6 @@ You can customize the code to fulfill your needs.
 
 ### Note
 This tool was created around 2011 and extended as needed on practical use cases. 
+It is used now for many years for several use cases, like export HCL Notes data to DB2, fill DB2 and MSSQL data warehouses or synchronize production and development environments of some systems.
 Because of the generic approach there are many possibilites, which can be configured, but never were checked. 
 So please be gracious about use cases which don´t work on first attempt. The good is, they can often be fixed with only a few lines of code.
