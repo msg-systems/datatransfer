@@ -115,6 +115,8 @@ The parameter count is dynamic in some cases.
 The language is case insensitive. It´s not important if function names are written upper- or lowercase.
 The following functions are valid for all DSL variants.
 
+Additional functions could be defined for specific providers like LDAP. These are explained in the appropriate [tutorial section](DataSourceHelpTutorials.md).
+
 ### Math functions
 
 | Name | Parameter | Description |
@@ -212,5 +214,64 @@ Special language characteristics are that
   ```SELECT 3 + ${{NumberVar}} as Calc from Tab AS T1```
 
 ### Defining origins and remote request
+
+The FROM part of non-SQL SQL expressions is called a remote request. the basic syntax is
+```
+[protocol]://[resource location]
+
+i.e.
+file://C:\temp\test.csv
+http://test.com/myResource.csv
+```
+
+If no protocol is set, dataTransfer assumes file:// .
+
+Additional to these URIs, dataTransfer uses an own parameter syntax for each remote origin. These look like this
+```
+[key]=[value]:::[key]=[value]:::[...]:::[protocol]://[resource location]
+i.e.
+http-method=get:::http-header=Accept:application/csv:::http://servername:port/query?db=test
+```
+
+These parameters depend on the used protocol and data provider.
+If a parameter name is listed multiple times, it is handled as list value. In the previous examle http-header can be used as often as needed.
+Provider dependent parameters are described in the appropriate [tutorial section](DataSourceHelpTutorials.md).
+Protocol dependent parameters are described here.
+
+#### file
+
+if no protocol is specified file is assumed.
+Authentication context is the user executing dataTransfer.
+It is allowed to use \ or / as directory separator. / are converted internaly to \. 
+Drive letters are transformed to [letter]$.
+
+The following parameters are allowed.
+
+| Name | Description |
+|------|-------------|
+|file-server|The server where the share is located - Default localhost|
+
+Because of these many interpretations this 
+```C:\temp/test.csv```
+is transformed to
+```\\localhost\C$\temp\test.csv```
+
+#### http and https
+
+Authentication context is the user executing dataTransfer.
+The following parameters are allowed.
+
+| Name | Description |
+|------|-------------|
+|http-method|The http method to use for this web request. Allowed values are GET, POST, PUT, DELETE - Default GET|
+|http-postdata| Data which should be sent in a POST, PUT or DELETE|
+|http-timeout|Timeout of the web request in seconds - default 120|
+|http-header|Multiple usage possible, once for each http header. Header named in format Headername:Headerwert|
+|http-SecProtType|Security protocol version for https i.e. Tls12. Valid are the enum values of System.Net.SecurityProtocolType|
+
+#### ldap and ldaps
+
+No additional parameters for ldap:// or ldaps:// are allowed currently.
+Authentication context is the user executing dataTransfer.
 
 [Back to index](docIndex.md)
