@@ -74,7 +74,7 @@ Used ado driver name is "MySql.Data.MySqlClient".
 ### Oracle
 Oracle is a relational database system from Oracle. 
 DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native MySQL SQL.
+Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Oracle SQL.
 Native ado driver name in .Net 4 is "System.Data.OracleClient". "System.Data.OleDb" is possible as well, if ODAC is installed.
 Newer drivers are available at oracle, but using new driver names and dlls, which have to be referenced in dataTransfer first.
 
@@ -95,10 +95,47 @@ DataTransfer is only tested with an OleDB-Connection with installed ODAC driver 
 ### OLEDB
 
 OLEDB is a programming interface from Microsoft to access database systems. These drivers can only used in Windows operating system.
-
+Native ado driver name in .Net 4 is "System.Data.OleDb".
+The syntax of the connection string depends on the used database driver.
 
 #### Access
+
+Access is a file based self hosted database system from Microsoft. 
+Batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) are not supported but syncs ([@sync](TransferHob.md#Synchronizing)) are. 
+Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Access SQL.
+The Ole driver for access (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="AccessTest" 
+	 conStringSourceType="System.Data.OleDb" conStringSource="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\Export-Bearbeitergruppen.mdb;Persist Security Info=True"
+	 conStringTargetType="System.Data.OleDb" conStringTarget="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\Export-Bearbeitergruppen.mdb;Persist Security Info=True">
+
+     <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+
+    </transferBlock>
+</TransferJob>
+```
+
 #### Excel
+
+Excel is a popular file based self hosted table calculation system from Microsoft. 
+Batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) are not supported but syncs ([@sync](TransferHob.md#Synchronizing)) are. 
+Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Access SQL.
+The Ole driver for excel (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="AccessTest" 
+	 conStringSource="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=TestData\ExcelFile.xlsx;Extended Properties=&quot;Excel 12.0 Xml;HDR=YES&quot;;"
+	 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+     <TransferTableJob sourceTable="[SourceSheet$A:D]" targetTable="export.csv" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0"/>
+
+    </transferBlock>
+</TransferJob>
+```
+
 ### LDAP
 ### ODBC
 ### Other ADO sources
