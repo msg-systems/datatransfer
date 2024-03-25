@@ -3,7 +3,7 @@
 
 The data transfer is a simple command line interface (CLI) tool with only a few parameters to execute transfer jobs written in the specification of an [xsd-schema](en/job.xsd). if you start datatransfer without any parameters, it is assumed that the job file to process is called job.xml and is in the same path as the executable.
 
-To fully understand all parameters, it is recommended to first understand the [General structure](TransferJob.md#General-structure) of a transfer job.
+To fully understand all parameters, it is recommended to first understand the [General structure](TransferJob.md#general-structure) of a transfer job.
 DataTransfer.exe creates log files stored in the subdirectory Log. 
 
 ## Parameters

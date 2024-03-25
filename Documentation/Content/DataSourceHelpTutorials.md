@@ -17,7 +17,7 @@ For all examples you should ensure that user names and passwords are correct and
 ### MSSQL
 
 Microsoft SQL Server is a relational database system from Microsoft. SQL Compact DBs or (localDBs) are supported as well.
-DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)), merges ([@merge](TransferHob.md#Merging)), syncs ([@sync](TransferHob.md#Synchronizing)) and so on.
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)), merges ([@merge](TransferHob.md#Merging)), syncs ([@sync](TransferHob.md#synchronizing)) and so on.
 Used ado driver name is "System.Data.SqlClient".
 
 ```
@@ -35,8 +35,8 @@ Used ado driver name is "System.Data.SqlClient".
 ### DB2
 
 IBM DB2 is a relational database system from IBM. DB2 Express is supported as well.
-DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native DB2-SQL .
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) syncs ([@sync](TransferHob.md#synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native DB2-SQL .
 Used ado driver name is "IBM.Data.DB2". A DB2 client/ driver package or server has to be installed for the .NET4 implementation of data transfer. 
 For the .NET5+ implementation it could be possible? that this installation is not needed, but this was never tested. With installed DB2 driver/client it works for sure.
 
@@ -55,8 +55,8 @@ For the .NET5+ implementation it could be possible? that this installation is no
 ### MySql/MariaDB
 
 MySql (Oracle) or Maria DB (open) is a relational database system. Both database types are supported.
-DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native MySQL SQL.
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) syncs ([@sync](TransferHob.md#synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native MySQL SQL.
 Used ado driver name is "MySql.Data.MySqlClient". 
 
 ```
@@ -73,8 +73,8 @@ Used ado driver name is "MySql.Data.MySqlClient".
 
 ### Oracle
 Oracle is a relational database system from Oracle. 
-DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Oracle SQL.
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) syncs ([@sync](TransferHob.md#synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Oracle SQL.
 Native ado driver name in .Net 4 is "System.Data.OracleClient". "System.Data.OleDb" is possible as well, if ODAC is installed.
 Newer drivers are available at oracle, but using new driver names and dlls, which have to be referenced in dataTransfer first.
 
@@ -101,8 +101,8 @@ The syntax of the connection string depends on the used database driver.
 #### Access
 
 Access is a file based self hosted database system from Microsoft. 
-Batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) are not supported but syncs ([@sync](TransferHob.md#Synchronizing)) are. 
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Access SQL.
+Batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) are not supported but syncs ([@sync](TransferHob.md#synchronizing)) are. 
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Access SQL.
 The Ole driver for access (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
 
 ```
@@ -120,8 +120,8 @@ The Ole driver for access (access database engine 2016) has to be installed in t
 #### Excel
 
 Excel is a popular file based self hosted table calculation system from Microsoft. 
-Batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) are not supported but syncs ([@sync](TransferHob.md#Synchronizing)) are. 
-Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native Access SQL.
+Batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) are not supported but syncs ([@sync](TransferHob.md#synchronizing)) are. 
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Access SQL.
 The Ole driver for excel (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
 
 ```

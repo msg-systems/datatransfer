@@ -59,7 +59,7 @@ Sometimes it is also needed to install some software from the manufacturer befor
 #### Connection strings
 
 Now that the type of data source is defined, the actual connection data to an instance of this data type has to be specified. This is done with the attributes TransferBlock/@conStringSource and TransferBlock/@conStringTarget. The format of these connection string is defined by the ADO.Net provider. A good help page for these formats are the manufacturer´s help pages or [wwww.connectionstrings.com](https://www.connectionstrings.com/). Passwords in connection strings are omitted in log files.
-For custom data source connection strings, please see the tutorial section and the DSL section [defining origins and remote request](DSL.md#Defining-origins-and-remote-request).
+For custom data source connection strings, please see the tutorial section and the DSL section [defining origins and remote request](DSL.md#defining-origins-and-remote-request).
 
 Windows only: Because connection strings often have passwords within, it is possible to encrypt these. For encryption Windows ProtectedData (DPAPI) is used. The tool CryptPassword.exe.zip is shipped within the release of datatransfer which converts a password text to UTF8 bytes, then encrypts it with DataProtect (machine/user options) and converts the result to Base64. The resulting base64 strings can be used in connectionstrings for the property names 'pwd', 'Password' and 'password'. 
 
@@ -172,7 +172,7 @@ Example: Assume that targetTab has currently 100 records. If maxRecordDiff is 60
 ### Pre and post SQL statements
 
 Pre und post SQL statements can be executed in any amount for each TransferTableJob. They are always executed on the target data source, because of the transactional scope which only exists there. 
-They are executed before the transfer starts modifying data and after the transfer is done. Only exception is [merging](TransferJob.md#Synchronizing-and-merging), which is always processed as last step.
+They are executed before the transfer starts modifying data and after the transfer is done. Only exception is [merging](TransferJob.md#synchronizing-and-merging), which is always processed as last step.
 These statement can execute any abritary SQL like stored procedures.
 
 ```
@@ -223,7 +223,7 @@ In the context of the dataTransfer a synchronization is always over a data bound
 
 ![SyncAndMerge](en/SyncAndMerge.png "Synchronizing and merging")
 
-This means that a merge is a build in functionality of a [post statement](TransferJob.md#Pre-and-post-SQL-statements) for the merge syntax of the target provider.
+This means that a merge is a build in functionality of a [post statement](TransferJob.md#pre-and-post-sql-statements) for the merge syntax of the target provider.
 
 ### Synchronizing
 
@@ -233,8 +233,8 @@ Synchronizing in dataTransfer is a very versatile feature. It is possible to syn
 
 To activate a sync you have to set the attribute TransferTableJob/@sync to true.
 
-To get the sync working a key must be present to match the records. This key can be set in the [TransferTableJob/columnMap](TransferJob.md#TransferTableJob)/TransferTableColumn/@isKey. It can be set on multiple columns to define multi-column keys. 
-If you use [TransferTableJob/@identicalColumns](TransferJob.md#TransferTableJob) you don´t are forced to list all columns if you use the elements TransferTableJob/customKeys which behaves identical to columnMap, but does not need all columns to be mapped.
+To get the sync working a key must be present to match the records. This key can be set in the [TransferTableJob/columnMap](TransferJob.md#transfertablejob)/TransferTableColumn/@isKey. It can be set on multiple columns to define multi-column keys. 
+If you use [TransferTableJob/@identicalColumns](TransferJob.md#transfertablejob) you don´t are forced to list all columns if you use the elements TransferTableJob/customKeys which behaves identical to columnMap, but does not need all columns to be mapped.
 
 ```
 <TransferTableJob sourceTable="sourceTab" targetTable="targetTab" sync="true">
@@ -261,7 +261,7 @@ To activate/deactivate inserts/updates/deletes use TransferTableJob/syncOptions 
 </TransferTableJob>
 ```
 
-To source data set is filtered like described at [TransferTableJob](TransferJob.md#TransferTableJob). 
+To source data set is filtered like described at [TransferTableJob](TransferJob.md#transfertablejob). 
 The target data is filtered with TransferTableJob/@targetSyncWhere, which has to define a where statement for the target provider.
 
 ```
@@ -279,14 +279,14 @@ To do this some configurations have to be set
 - TransferTableJob/syncByLastModOptions/@SyncByLastModField should be the timestamp/datetime field name on both sides for a comparision (diffrent column names are not supported)
 - TransferTableJob/syncByLastModOptions/@SyncByLastModMode should be set to a valid mode
 
-The attributes [TransferTableJob/@sync](TransferJob.md#Synchronizing) and [TransferTableJob/SyncOptions](TransferJob.md#Synchronizing) do not apply for this synchronization type.
-Filtering records on source or target still works like described [here](TransferJob.md#Synchronizing).
+The attributes [TransferTableJob/@sync](TransferJob.md#synchronizing) and [TransferTableJob/SyncOptions](TransferJob.md#synchronizing) do not apply for this synchronization type.
+Filtering records on source or target still works like described [here](TransferJob.md#synchronizing).
 
 The behaviour of the syncrhonization by last modification is controlled by TransferTableJob/syncByLastModOptions/@SyncByLastModMode.
 The following options are valid:
 - APPEND : Appends all records of the source which have a bigger last modification date then the highest in the target data souce - no validations are made if the record already exists
 - APPEND_INCLUDE_MAXDATE : Appends all records of the source which have a bigger or equal last modification date then the highest in the target data souce - no validations are made if the record already exists
-- UPDATE_EXISTING : This mode needs at exact one key column [defined like here](TransferJob.md#Synchronizing). Before appending data like in the modes APPEND/APPEND_INCLUDE_MAXDATE, this mode checks for existing primary keys first and deletes then before appending. The result are updated and appended records in the target, to the newest state from the source table. Please note, that this runs deletes and inserts, which may result in triggered actions on your target table.
+- UPDATE_EXISTING : This mode needs at exact one key column [defined like here](TransferJob.md#synchronizing). Before appending data like in the modes APPEND/APPEND_INCLUDE_MAXDATE, this mode checks for existing primary keys first and deletes then before appending. The result are updated and appended records in the target, to the newest state from the source table. Please note, that this runs deletes and inserts, which may result in triggered actions on your target table.
 
 ```
 <TransferTableJob sourceTable="sourceTab" targetTable="targetTab" SyncByLastMod="true" identicalColumns="true" >
@@ -299,7 +299,7 @@ The following options are valid:
 </TransferTableJob>
 ```
 
-Just to show a more advanced configuration options: A similar behaviour, with even more functionality, can be achieved by [variables](DSL.md#Variables) und TransferTableJob/@sourceWhere. 
+Just to show a more advanced configuration options: A similar behaviour, with even more functionality, can be achieved by [variables](DSL.md#variables) und TransferTableJob/@sourceWhere. 
 This example first initializes the variables, then uses them as to filter the source and then does a synchronization with only updates and inserts. With this option no deletes are executed at all and key comparision with multiple columns are possible. 
 (&amp;gt; is the code for > in xml outside of CDATA-regions)
 ```
@@ -313,7 +313,7 @@ This example first initializes the variables, then uses them as to filter the so
 ### Merging
 
 Merging data in the meaning of dataTransfer is transfering data in the target between one and another table with insert/update and no deletes. No data boundaries between providers are passed.
-This can always be archived by a [post statement](TransferJob.md#Pre-and-post-SQL-statements), but then you have to type the merge command yourself.
+This can always be archived by a [post statement](TransferJob.md#pre-and-post-sql-statements), but then you have to type the merge command yourself.
 
 In the current release is the automatic building of merge comands for MSSQL data sources a built-in feature. To activate, you have to fill the TransferTableJob/MergeOptions.
 First set TransferTableJob/MergeOptions/@merge as "true" and define a target table with TransferTableJob/MergeOptions/@targetTable. If you have identical columns between target table and merge table you can set TransferTableJob/MergeOptions/@autoMergeColumns to "true". If set to false TransferTableJob/MergeOptions/columnMap has to be defined. To define the merge keys use TransferTableJob/MergeOptions/mergeKey.

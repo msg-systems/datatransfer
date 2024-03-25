@@ -2,11 +2,11 @@
 # Domain specific language DSL
 
 The dataTransfer is able to define and use variables and query non ADO.NET data sources. 
-Because non ADO.NET data sources mostly don´t understand SQL the dataTransfer uses an own [SQL Parser](DSL.md#SQL-Parser-for-non-SQL) and a DSL expression language for [variables](DSL.md#Variables), where parts and columns.
+Because non ADO.NET data sources mostly don´t understand SQL the dataTransfer uses an own [SQL Parser](DSL.md#sql-parser-for-non-sql) and a DSL expression language for [variables](DSL.md#variables), where parts and columns.
 Variables can also be used in standard SQL statement of ADO.NET data sources.
 
-There are several variants of DSL expression languages build in, depending on the custom data provider. For [variable initialization](DSL.md#Variables) without provider context, the most basic DSL variant is used.
-The basic syntax of all DSLs is described here. Special functions are described at the documentation for the [concrete custom provider](DataSourceHelpTutorials.md#non-ADO/custom-transfers).
+There are several variants of DSL expression languages build in, depending on the custom data provider. For [variable initialization](DSL.md#variables) without provider context, the most basic DSL variant is used.
+The basic syntax of all DSLs is described here. Special functions are described at the documentation for the [concrete custom provider](DataSourceHelpTutorials.md#non-ado/custom-transfers).
 
 A [pdf documentation](en/Domain%20specific%20language%20definition.pdf) is available too.
 
@@ -200,7 +200,7 @@ SELECT [columns|expressions]
 ``` 
 
 All expressions are using the [DSL language](DSL.md#Domain_specific_language_DSL).
-The syntax of [remote origins](DSL.md#Defining_origins_and_remote_request) is described [here](DSL.md#Defining_origins_and_remote_request).
+The syntax of [remote origins](DSL.md#defining-origins-and-remote-request) is described [here](DSL.md#defining-origins-and-remote-request).
 
 Special language characteristics are that
 - you have to name all tables and calculated columns with a name/identifier.
@@ -209,7 +209,7 @@ Special language characteristics are that
 - Inner joins accept only = as condition with “=” are accepted.
   More complex comparisions are possible in the where clause
   ```Select T1.Key FROM Tab1 as T1 inner join Tab2 T2 on T1.Key = T2.Key ```
-- If using multiple tables/[remote origins](DSL.md#Defining_origins_and_remote_request), every column has to be specified full qualified. Every column has to be refrenced by [remoteOrigin alias].[column name]
+- If using multiple tables/[remote origins](DSL.md#defining-origins-and-remote-request), every column has to be specified full qualified. Every column has to be refrenced by [remoteOrigin alias].[column name]
 -  Variables can be inserted with the data binding expression ${{Varname}}
   ```SELECT 3 + ${{NumberVar}} as Calc from Tab AS T1```
 
