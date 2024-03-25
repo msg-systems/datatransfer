@@ -198,7 +198,7 @@ The same can achieved by using a preStatement sql.
 ### Batch size
 
 DataTransfer inserts, updates and deletes records with SQL statements. If 100.000 of records are inserted, the communication overhead for every single insert/update/delete statement can become a bottle neck.
-Because of this, DataTransfer assembles single updates/inserts/deletes to batch jobs, so that multiple commands are sent to the server at once. This has big effects on performance but is sometimes a bit complicated to debug, because of error messages which just refer to 1 entry of a 1000 command batch. The drawback can be softened by using the [-d debug parameter in command line](datatransfer.exe.md#Parameters) which sets the batch size for this run to 1.
+Because of this, DataTransfer assembles single updates/inserts/deletes to batch jobs, so that multiple commands are sent to the server at once. This has big effects on performance but is sometimes a bit complicated to debug, because of error messages which just refer to 1 entry of a 1000 command batch. The drawback can be softened by using the [-d debug parameter in command line](datatransfer.exe.md#parameters) which sets the batch size for this run to 1.
 The attribute to configure is set at transferBlock/@targetMaxBatchSize.
 
 Some data sources doesn´t support batches at all, i.e. some ODBC data sources. In this case this parameter has to be set to 1. 
