@@ -26,7 +26,7 @@ Used ado driver name is "System.Data.SqlClient".
     conStringSourceType="System.Data.SqlClient" conStringSource="Data Source=myMSSQLDB.myDomain.com;Initial Catalog=SourceDB;User=myUser;Password=Secret;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False"
     conStringTargetType="System.Data.SqlClient" conStringTarget="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=TargetDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False">
 
-      <TransferTableJob sourceTable="dbo.baseTable" targetTable="fbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+      <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
 
     </transferBlock>
 </TransferJob>
@@ -46,15 +46,57 @@ For the .NET5+ implementation it could be possible? that this installation is no
     conStringSourceType="IBM.Data.DB2" conStringSource="Server=servername:50000;Database=dbname;UserID=db2admin;pwd=secret"
     conStringTargetType="IBM.Data.DB2" conStringTarget="Server=servername2:50000;Database=dbname2;UserID=db2admin;pwd=secret">
 
-      <TransferTableJob sourceTable="dbo.baseTable" targetTable="fbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+      <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
 
     </transferBlock>
 </TransferJob>
 ```
 
 ### MySql/MariaDB
+
+MySql (Oracle) or Maria DB (open) is a relational database system. Both database types are supported.
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
+Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native MySQL SQL.
+Used ado driver name is "MySql.Data.MySqlClient". 
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="MySqlTest" 
+	 conStringSourceType="MySql.Data.MySqlClient" conStringSource="Server=mySQLDDB;Database=dbname;Uid=username;Pwd=Geheim"
+	 conStringTargetType="MySql.Data.MySqlClient" conStringTarget="Server=mySQLDDB;Database=dbname;Uid=username;Pwd=Geheim">
+
+     <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+
+    </transferBlock>
+</TransferJob>
+```
+
 ### Oracle
+Oracle is a relational database system from Oracle. 
+DataTransfer is fully supported for batch commands ([@targetMaxBatchSize](TransferJob.md#Batch-size)) syncs ([@sync](TransferHob.md#Synchronizing)) and so on, except merges([@merge](TransferHob.md#Merging)).
+Merges can still be used via [post statements](TransferJob.md#Pre-and-post-SQL-statements) in native MySQL SQL.
+Native ado driver name in .Net 4 is "System.Data.OracleClient". "System.Data.OleDb" is possible as well, if ODAC is installed.
+Newer drivers are available at oracle, but using new driver names and dlls, which have to be referenced in dataTransfer first.
+
+DataTransfer is only tested with an OleDB-Connection with installed ODAC driver yet.
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="OracleTest" 
+	 conStringSourceType="System.Data.OleDb" conStringSource="Provider=OraOLEDB.Oracle;Data Source=(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=servername)(PORT=1521)))(CONNECT_DATA=(SID=PROSEWU)(SERVER=DEDICATED)));User Id=username;Password=geheim"
+	 conStringTargetType="System.Data.OleDb" conStringTarget="Provider=OraOLEDB.Oracle;Data Source=(DESCRIPTION=(CID=GTU_APP)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=servername)(PORT=1521)))(CONNECT_DATA=(SID=PROSEWU)(SERVER=DEDICATED)));User Id=username;Password=geheim">
+
+     <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+
+    </transferBlock>
+</TransferJob>
+```
+
 ### OLEDB
+
+OLEDB is a programming interface from Microsoft to access database systems. These drivers can only used in Windows operating system.
+
+
 #### Access
 #### Excel
 ### LDAP
