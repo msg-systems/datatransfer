@@ -6,6 +6,9 @@ This section shows some simple examples for diffrent data source connections.
 Details on connection strings should be checked on the manufacturer site of the ADO driver, if applies.
 Details on xml elements and attributes can be on the [Transferjob page](TransferJob.md).
 
+The examples are always the shortest version of an implementation.
+For each example the own [SQL-parser/DSL of dataTransfer](DSL.md) can be used.
+
 ## using ADO transfers
 
 ADO drivers are mostly published by the manufacturer of a database system and have to be known/registered by dataTransfer.
@@ -104,6 +107,7 @@ Access is a file based self hosted database system from Microsoft.
 Batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) are not supported but syncs ([@sync](TransferJob.md#synchronizing)) are. 
 Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Access SQL.
 The Ole driver for access (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
+The OLE provider name, which I already used, is "Microsoft.Jet.OLEDB.4.0".
 
 ```
 <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
@@ -111,7 +115,7 @@ The Ole driver for access (access database engine 2016) has to be installed in t
 	 conStringSourceType="System.Data.OleDb" conStringSource="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\Export-Bearbeitergruppen.mdb;Persist Security Info=True"
 	 conStringTargetType="System.Data.OleDb" conStringTarget="Provider=Microsoft.Jet.OLEDB.4.0;Data Source=TestData\Export-Bearbeitergruppen.mdb;Persist Security Info=True">
 
-     <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0" />
+     <TransferTableJob sourceTable="dbo.baseTable" targetTable="dbo.targetTable" sync="false" identicalColumns="true" maxRecordDiff="10.0" />
 
     </transferBlock>
 </TransferJob>
@@ -121,8 +125,10 @@ The Ole driver for access (access database engine 2016) has to be installed in t
 
 Excel is a popular file based self hosted table calculation system from Microsoft. 
 Batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) are not supported but syncs ([@sync](TransferJob.md#synchronizing)) are. 
-Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Access SQL.
+Merges can still be used via [post statements](TransferJob.md#pre-and-post-SQL-statements) in native Excel SQL.
+Transactions are not supported.
 The Ole driver for excel (access database engine 2016) has to be installed in the correct architecture (x86/x64) to get it working.
+The OLE provider name, which I already used, is "Microsoft.ACE.OLEDB.12.0".
 
 ```
 <TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
@@ -130,14 +136,59 @@ The Ole driver for excel (access database engine 2016) has to be installed in th
 	 conStringSource="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=TestData\ExcelFile.xlsx;Extended Properties=&quot;Excel 12.0 Xml;HDR=YES&quot;;"
 	 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
 
-     <TransferTableJob sourceTable="[SourceSheet$A:D]" targetTable="export.csv" sync="false" deleteBefore="true" identicalColumns="true" maxRecordDiff="10.0"/>
+     <TransferTableJob sourceTable="[SourceSheet$A:D]" targetTable="export.csv" sync="false" identicalColumns="true" maxRecordDiff="10.0"/>
 
     </transferBlock>
 </TransferJob>
 ```
 
 ### LDAP
+
+LDAP is a popular directory service protocol. 
+Batch commands ([@targetMaxBatchSize](TransferJob.md#batch-size)) are not supported but syncs ([@sync](TransferJob.md#synchronizing)) are. 
+Merges cannot be used.
+Transactions are not supported.
+On Windows clients no additional drivers are needed.
+The OLE provider name, which I already used, is "ADSDSOObject".
+I tested it only with reading data.
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="LDAPTest" 
+	 conStringSourceType="Custom.Import.LDAP" conStringSource=""
+	 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+     <TransferTableJob sourceTable="LDAP://myLDAPServer:636/dc=myDC" sourceWhere = "objectCategory='user' and company = 'msg systems ag'"
+                       targetTable="export.csv" sync="false" identicalColumns="false">
+       <columnMap>
+		 <TransferTableColumn sourceCol="cn" targetCol="cn"/>
+       </columnMap>
+     </TransferTableJob>
+
+    </transferBlock>
+</TransferJob>
+```
+
 ### ODBC
+
+ODBC can be used with the conStringSourceType = "System.Data.Odbc".
+Capabilities depend on the used ODBC driver.
+Own experience exists only for the Notes ODBC driver where source tables are Notes views or folders.
+
+Important: ODBC divers has to be installed and have to match the architecture of the dataTransfer binaries.
+
+```
+<TransferJob xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation = "job.xsd">
+  <transferBlock name="LDAPTest" 
+	 conStringSourceType="System.Data.Odbc" conStringSource="Driver={Lotus Notes SQL Driver (*.nsf)};Server=notesserver/domain;database=applic/msg0001.nsf;Uid=Login/msg;Pwd=secret"
+	 conStringTargetType="Custom.CSV" conStringTarget="" disableTransaction="true">
+
+     <TransferTableJob sourceTable="IMP_JobModelEntries" targetTable="C:\temp\blabla.csv"
+						deleteBefore="false" identicalColumns="true">
+    </transferBlock>
+</TransferJob>
+```
+
 ### Other ADO sources
 ## non ADO/custom transfers
 ### LDAP custom
