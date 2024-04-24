@@ -190,7 +190,22 @@ Important: ODBC divers has to be installed and have to match the architecture of
 ```
 
 ### Other ADO sources
+
+Other ADO sources can be added with the following steps
+
+1. Load and install the ADO driver from the manufacturer
+2. Open the source code of the respective dataTransfer project in Visual Studio (whatever architecture you want to use)
+3. Add the dll for the ADO driver to project reference (best practice is to copy it there before)
+4. If you are changing the .NET 5+ version, you have to add a line to pProgram.cs
+4.1. Search for ``` DbProviderFactories.RegisterFactory ```
+4.2. Add ``` DbProviderFactories.RegisterFactory("[ADO-Drivername]", [Instanceclass of provider]); ```
+5. Compile the new version of dataTransfer and use it
+
 ## non ADO/custom transfers
+
+Other data sources can be queried and written as well. Operations like delete or update are not supprted for most data sources. Nevertheless file formats can overwrite the complete file.
+Transactions and or batching are not supported. You can implement them if you know how to do so for this data source.
+
 ### LDAP custom
 ### CSV
 ### XML
