@@ -194,19 +194,63 @@ Important: ODBC divers has to be installed and have to match the architecture of
 Other ADO sources can be added with the following steps
 
 1. Load and install the ADO driver from the manufacturer
-2. Open the source code of the respective dataTransfer project in Visual Studio (whatever architecture you want to use)
+2. Open the source code of the respective dataTransfer project (.net4 or .net5) in Visual Studio 
 3. Add the dll for the ADO driver to project reference (best practice is to copy it there before)
-4. If you are changing the .NET 5+ version, you have to add a line to pProgram.cs
+4. If you are changing the .NET 5+ version, you have to add a line to Program.cs
 4.1. Search for ``` DbProviderFactories.RegisterFactory ```
 4.2. Add ``` DbProviderFactories.RegisterFactory("[ADO-Drivername]", [Instanceclass of provider]); ```
-5. Compile the new version of dataTransfer and use it
+5. Compile the new version of dataTransfer and just use it
 
 ## non ADO/custom transfers
 
-Other data sources can be queried and written as well. Operations like delete or update are not supprted for most data sources. Nevertheless file formats can overwrite the complete file.
-Transactions and or batching are not supported. You can implement them if you know how to do so for this data source.
+Other data sources can be queried and written as well. Some are already implemented. Operations like delete or update are not implemented for most data sources. Nevertheless file formats can overwrite the complete file.
+Transactions and or batching are not supported. You can implement them if you know how to do so for the concrete data source.
 
 ### LDAP custom
+
+A custom LDAP provider is implemented. Main reason for this is the limit of the maximum of 1500 members of a group by one LDAP-Query. 
+The custom SQL syntax used is mixed:
+- SELECT-part in [DSL](DSL.md)
+- FROM-part as LDAP URL with Port
+- Where-part as native LDAP-Query
+You can use these queries as a whole [customSourceSelect](TransferJob.md#transfertablejob) or with the use of the seperate attributes like [sourceTable, sourceWhere and columnMap](TransferJob.md#transfertablejob).
+- 
+Custom LDAP can be used with the conStringSourceType = "Custom.Import.LDAP". The conString is empty or can contain any info you want.
+To use LDAPS don´t write ldaps://. Instead just use the port 636 in the from-part.
+
+For the DSL some special functions are implemented.
+
+| Name | Parameter | Description |
+|------|-----------|-------------|
+|coctet|LDAP Octet-number property [input]<br/>Returns regular number|Converts [input] to regular integer and returns it.|
+|cdate8|LDAP date8 property [input]<br/>Returns regular date|Converts [input] to regular date and returns it. If not possible an error is returned.|
+|cdategen|LDAP default date property [input]<br/>Returns regular date|Converts [input] to date and returns it. If not possible an error is returned.|
+|sid|LDAP SID property [input]<br/>Returns SecurityIdentifier|Converts [input] to SecurityIdentifier and returns it. If not possible an error is returned.|
+|loadbigarray|Property with more than 1500 elements [input]<br/>Returns list of member|Loads property [input] with all members.|
+|splitRows|member array [input]<br/>Returns records|Splits the input array property to seperate records. Only used for array properties|
+
+Example of a query
+```
+	<TransferTableJob targetTable="C:\temp\exportFile.csv" identicalColumns="true">
+					
+		<!-- Variante CustomSelect-->
+		<customSourceSelect> 
+			SELECT cn, 
+			givenName + ' ' + sn as fullname, 
+			cint(userAccountControl &amp; 2)&gt;0 as disbaled,
+			cdate8(lastLogon) as lastLogon,
+			cDateGen(WhenCreated) as created,
+			if(givenname = 'someValue', 'this is someValue', 'this is another one') as MyIdentifier,
+			cdate8(accountExpires) as Expires,
+			splitRows(proxyAddresses) as proxyAddress
+			FROM LDAP://myLDAPServer:636/OU=myOU,dc=myDC
+			WHERE (&amp;(objectCategory=user)(company=myCompany)(!userAccountControl:1.2.840.113556.1.4.803:=2))
+		</customSourceSelect>
+
+	</TransferTableJob>
+```
+
+
 ### CSV
 ### XML
 #### HCL Notes Domino ReadViewEntries

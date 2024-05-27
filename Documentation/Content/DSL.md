@@ -208,7 +208,7 @@ Special language characteristics are that
   ```SELECT 1 as Column FROM Table as T```
 - Inner joins accept only = as condition with “=” are accepted.
   More complex comparisions are possible in the where clause
-  ```Select T1.Key FROM Tab1 as T1 inner join Tab2 T2 on T1.Key = T2.Key ```
+  ```Select T1.Key FROM Tab1 as T1 inner join Tab2 T2 on T1.Key = T2.Key```
 - If using multiple tables/[remote origins](DSL.md#defining-origins-and-remote-request), every column has to be specified full qualified. Every column has to be refrenced by [remoteOrigin alias].[column name]
 -  Variables can be inserted with the data binding expression ${{Varname}}
   ```SELECT 3 + ${{NumberVar}} as Calc from Tab AS T1```
