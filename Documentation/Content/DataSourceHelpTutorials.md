@@ -214,7 +214,9 @@ The custom SQL syntax used is mixed:
 - FROM-part as LDAP URL with Port
 - Where-part as native LDAP-Query
 You can use these queries as a whole [customSourceSelect](TransferJob.md#transfertablejob) or with the use of the seperate attributes like [sourceTable, sourceWhere and columnMap](TransferJob.md#transfertablejob).
-- 
+
+Insert/update/delete for LDAP is not implemented. 
+
 Custom LDAP can be used with the conStringSourceType = "Custom.Import.LDAP". The conString is empty or can contain any info you want.
 To use LDAPS don´t write ldaps://. Instead just use the port 636 in the from-part.
 
@@ -231,27 +233,55 @@ For the DSL some special functions are implemented.
 
 Example of a query
 ```
-	<TransferTableJob targetTable="C:\temp\exportFile.csv" identicalColumns="true">
+<TransferTableJob targetTable="C:\temp\exportFile.csv" identicalColumns="true">
 					
-		<!-- Variante CustomSelect-->
-		<customSourceSelect> 
-			SELECT cn, 
-			givenName + ' ' + sn as fullname, 
-			cint(userAccountControl &amp; 2)&gt;0 as disbaled,
-			cdate8(lastLogon) as lastLogon,
-			cDateGen(WhenCreated) as created,
-			if(givenname = 'someValue', 'this is someValue', 'this is another one') as MyIdentifier,
-			cdate8(accountExpires) as Expires,
-			splitRows(proxyAddresses) as proxyAddress
-			FROM LDAP://myLDAPServer:636/OU=myOU,dc=myDC
-			WHERE (&amp;(objectCategory=user)(company=myCompany)(!userAccountControl:1.2.840.113556.1.4.803:=2))
-		</customSourceSelect>
+	<!-- Variante CustomSelect-->
+	<customSourceSelect> 
+		SELECT cn, 
+		givenName + ' ' + sn as fullname, 
+		cint(userAccountControl &amp; 2)&gt;0 as disbaled,
+		cdate8(lastLogon) as lastLogon,
+		cDateGen(WhenCreated) as created,
+		if(givenname = 'someValue', 'this is someValue', 'this is another one') as MyIdentifier,
+		cdate8(accountExpires) as Expires,
+		splitRows(proxyAddresses) as proxyAddress
+		FROM LDAP://myLDAPServer:636/OU=myOU,dc=myDC
+		WHERE (&amp;(objectCategory=user)(company=myCompany)(!userAccountControl:1.2.840.113556.1.4.803:=2))
+	</customSourceSelect>
 
-	</TransferTableJob>
+</TransferTableJob>
 ```
 
-
 ### CSV
+
+The custom CSV provider can read CSV from any source like file or URL. Insert is supprted. Update/delete not.
+Export files can be overwritten as a whole.
+
+To use it set conStringSourceType to one of these "Custom.Export.CSV" / "Custom.CSV". 
+You can define delmiter and bracing characters global in the conString attribute.
+- delimiter: delmiter character - default ;
+- enclose: brace character - default "
+If bracing is defined, tokens without braces are still recognized.
+
+You can also set delimiter and braces on each from-part of the query like ``` delimiter:,:::enclose:#:::C:\mycsv.csv ```
+
+Transactions are not supported.
+The custom SQL works with expression language in select- and where-part and in the on-conditions of joins.
+
+i.e.
+```
+<TransferTableJob targetTable="C:\temp\hardware5.csv" identicalColumns="true">
+		<customSourceSelect>
+			<![CDATA[
+			SELECT t1.KEY as s, t1.LIEFERANT, t2.BETRIEBSSYSTEM, t1.KEY + ' x ' + t1.MEMORY_EINHEIT as test, 'test' as test2
+			FROM C:\temp\hardware.csv as t1 inner join C:\temp\hardware.csv as t2 on t1.KEY = t2.KEY
+			WHERE t1.KEY <> '' && t2.KEY <> '' and startsWith(t1.KEY, 'h-')
+			]]>
+		</customSourceSelect>
+	</TransferTableJob>
+</transferBlock>
+```
+
 ### XML
 #### HCL Notes Domino ReadViewEntries
 ### JSON
