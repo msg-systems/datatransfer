@@ -24,7 +24,7 @@ namespace msa.Data.Transfer
 	{
 		public static Exception occuredException = null;
 		public static CultureInfo defaultCulture = CultureInfo.GetCultureInfo("EN-US");
-
+		 
 		/// <summary>
 		/// Liest einen Parameter von der Kommandozeile ein
 		/// </summary>
