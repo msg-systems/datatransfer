@@ -23,7 +23,7 @@ namespace msa.Data.Transfer
 	internal class Program
 	{
 		public static Exception occuredException = null;
-		public static CultureInfo defaultCulture = CultureInfo.GetCultureInfo("EN-US");
+		public static CultureInfo defaultCulture = CultureInfo.GetCultureInfo("EN-US"); // Standardsprache
 		 
 		/// <summary>
 		/// Liest einen Parameter von der Kommandozeile ein
